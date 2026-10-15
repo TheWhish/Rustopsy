@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Safety guard
+        shell: bash
+        run: |
+          forbidden='OpenProcess|ReadProcessMemory|WriteProcessMemory|CreateRemoteThread|SendInput|keybd_event|mouse_event|SetWindowsHookEx|WH_KEYBOARD_LL|WH_MOUSE_LL|java\.awt\.Robot|jnativehook'
+          if git grep -nIE "$forbidden" -- '*.kt' '*.kts' '*.toml'; then
+            echo "Forbidden API found, see docs/SAFETY.md"
+            exit 1
+          fi
+          if ./gradlew -q :desktopApp:dependencies --configuration runtimeClasspath | grep -i jnativehook; then
+            echo "Forbidden dependency found, see docs/SAFETY.md"
+            exit 1
+          fi
+
+      - name: Tests
+        run: ./gradlew :core:jvmTest :shared:jvmTest -q
+
+      - name: Package MSI
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: ./gradlew :desktopApp:packageMsi -q
+
+      - uses: actions/upload-artifact@v5
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          name: Rustopsy-msi
+          path: desktopApp/build/compose/binaries/main/msi/*.msi
