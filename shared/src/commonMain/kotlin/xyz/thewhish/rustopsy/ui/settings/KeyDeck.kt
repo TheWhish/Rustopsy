@@ -26,11 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.unit.dp
+import xyz.thewhish.rustopsy.ui.components.pressScale
 import xyz.thewhish.rustopsy.ui.theme.Ash
 import xyz.thewhish.rustopsy.ui.theme.AshColors
 import xyz.thewhish.rustopsy.ui.theme.AshMotion
@@ -129,7 +131,7 @@ private fun KeyToggle(key: DeckKey, picking: KeyPicking, modifier: Modifier, sha
         tween(AshMotion.MICRO, easing = AshMotion.standard),
     )
     val outline by animateColorAsState(if (selected) AshColors.ember else Color.Transparent, tween(AshMotion.SHORT, easing = AshMotion.standard))
-    val base = modifier
+    val base = modifier.scale(pressScale(interaction))
         .drawBehind {
             val lip = KEY_LIP.toPx()
             drawOutline(shape.createOutline(size, layoutDirection, this), KEY_SHADOW)

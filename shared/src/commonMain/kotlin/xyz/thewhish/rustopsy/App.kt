@@ -2,7 +2,7 @@ package xyz.thewhish.rustopsy
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,11 +27,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -40,14 +42,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -66,7 +74,9 @@ import xyz.thewhish.rustopsy.ui.theme.AshTheme
 import xyz.thewhish.rustopsy.team.TeamAccess
 import xyz.thewhish.rustopsy.ui.overlay.OverlayAccess
 import xyz.thewhish.rustopsy.ui.components.LocalAvatars
+import xyz.thewhish.rustopsy.ui.components.pressScale
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -74,6 +84,14 @@ val BASE_WIDTH = 1440.dp
 val BASE_HEIGHT = 810.dp
 
 private const val TICK_MS = 1_000L
+private val RAIL_WIDTH = 84.dp
+private val RAIL_ITEM_WIDTH = 68.dp
+private val RAIL_ITEM_HEIGHT = 56.dp
+private val RAIL_GAP = 4.dp
+private val RAIL_MARK = DpSize(3.dp, 20.dp)
+private val RAIL_MARK_SHAPE = RoundedCornerShape(topEnd = 2.dp, bottomEnd = 2.dp)
+private const val SCREEN_SLIDE_PX = 12
+private const val SCREEN_EXIT_MS = 120
 
 enum class Screen(val title: String) { Radar("Радар"), History("История"), Statistics("Статистика"), Settings("Настройки") }
 
@@ -100,8 +118,8 @@ fun App(
                     modifier = Modifier.weight(1f).fillMaxHeight().padding(top = AshSpace.m, end = AshSpace.m, bottom = AshSpace.m),
                     transitionSpec = {
                         val direction = if (targetState.ordinal > initialState.ordinal) 1 else -1
-                        (fadeIn(tween(AshMotion.SHORT)) + slideInHorizontally(tween(AshMotion.MEDIUM, easing = AshMotion.standard)) { direction * 8 })
-                            .togetherWith(fadeOut(tween(120)))
+                        (fadeIn(tween(AshMotion.MEDIUM, easing = AshMotion.enter)) + slideInHorizontally(tween(AshMotion.MEDIUM, easing = AshMotion.enter)) { direction * SCREEN_SLIDE_PX })
+                            .togetherWith(fadeOut(tween(SCREEN_EXIT_MS, easing = AshMotion.exit)))
                     },
                 ) { target ->
                     when (target) {
@@ -141,53 +159,69 @@ private fun ScaledCanvas(avatars: suspend (String) -> ImageBitmap?, content: @Co
 
 @Composable
 private fun Rail(selected: Screen, onSelect: (Screen) -> Unit) {
-    val itemStep = 50.dp
-    val dotOffset by animateDpAsState(itemStep * selected.ordinal, tween(AshMotion.MEDIUM, easing = AshMotion.standard))
-    Column(Modifier.width(68.dp).fillMaxHeight().padding(vertical = AshSpace.l), horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(36.dp).clip(AshShapes.control).background(AshColors.emberStrong), contentAlignment = Alignment.Center) {
-            AshText("R", Ash.type.section, color = AshColors.onEmber)
+    val tops = remember { mutableStateMapOf<Screen, Float>() }
+    val indicator = remember { Animatable(0f) }
+    var shown by remember { mutableStateOf<Screen?>(null) }
+    val target = tops[selected]
+    LaunchedEffect(selected, target) {
+        if (target == null) return@LaunchedEffect
+        val glide = shown != null && shown != selected
+        shown = selected
+        if (glide) indicator.animateTo(target, AshMotion.glide()) else indicator.snapTo(target)
+    }
+    Box(Modifier.width(RAIL_WIDTH).fillMaxHeight().padding(vertical = AshSpace.l)) {
+        if (shown != null) {
+            Box(
+                Modifier.offset { IntOffset(((RAIL_WIDTH - RAIL_ITEM_WIDTH) / 2).roundToPx(), indicator.value.roundToInt()) }
+                    .size(RAIL_ITEM_WIDTH, RAIL_ITEM_HEIGHT).clip(AshShapes.control).background(AshColors.ash2),
+            )
+            Box(
+                Modifier.offset { IntOffset(0, (indicator.value + ((RAIL_ITEM_HEIGHT - RAIL_MARK.height) / 2).toPx()).roundToInt()) }
+                    .size(RAIL_MARK).clip(RAIL_MARK_SHAPE).background(AshColors.ember),
+            )
         }
-        Spacer(Modifier.height(AshSpace.l))
-        Box {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Screen.entries.filter { it != Screen.Settings }.forEach { screen ->
-                    RailItem(screen, screen == selected) { onSelect(screen) }
+        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(Modifier.size(36.dp).clip(AshShapes.control).background(AshColors.emberStrong), contentAlignment = Alignment.Center) {
+                AshText("R", Ash.type.section, color = AshColors.onEmber)
+            }
+            Spacer(Modifier.height(AshSpace.l))
+            Screen.entries.forEach { screen ->
+                when (screen) {
+                    Screen.Radar -> Unit
+                    Screen.Settings -> Spacer(Modifier.weight(1f))
+                    else -> Spacer(Modifier.height(RAIL_GAP))
                 }
-            }
-            if (selected != Screen.Settings) {
-                Box(Modifier.offset(x = (-8).dp, y = 19.dp + dotOffset).size(6.dp).clip(CircleShape).background(AshColors.ember))
-            }
-        }
-        Spacer(Modifier.weight(1f))
-        Box {
-            RailItem(Screen.Settings, selected == Screen.Settings) { onSelect(Screen.Settings) }
-            if (selected == Screen.Settings) {
-                Box(Modifier.offset(x = (-8).dp, y = 19.dp).size(6.dp).clip(CircleShape).background(AshColors.ember))
+                RailItem(screen, screen == selected, Modifier.onPlaced { tops[screen] = it.positionInParent().y }) { onSelect(screen) }
             }
         }
     }
 }
 
 @Composable
-private fun RailItem(screen: Screen, active: Boolean, onClick: () -> Unit) {
+private fun RailItem(screen: Screen, active: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
-    val background by animateColorAsState(if (active || hovered) AshColors.ash1 else AshColors.ash0, tween(AshMotion.MICRO))
-    val iconColor by animateColorAsState(
+    val background by animateColorAsState(AshColors.ash1.copy(alpha = if (hovered && !active) 1f else 0f), tween(AshMotion.MICRO, easing = AshMotion.standard))
+    val content by animateColorAsState(
         when {
             active -> AshColors.text1
             hovered -> AshColors.text2
             else -> AshColors.text3
         },
-        tween(AshMotion.MICRO),
+        tween(AshMotion.SHORT, easing = AshMotion.standard),
     )
-    Box(
-        Modifier.size(44.dp).clip(AshShapes.control).background(background)
+    Column(
+        modifier.scale(pressScale(interaction))
+            .size(RAIL_ITEM_WIDTH, RAIL_ITEM_HEIGHT)
+            .clip(AshShapes.control)
+            .background(background)
             .hoverable(interaction)
-            .clickable(interaction, indication = null, onClick = onClick),
-        contentAlignment = Alignment.Center,
+            .clickable(interaction, indication = null, role = Role.Tab, onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(AshSpace.xs, Alignment.CenterVertically),
     ) {
-        Canvas(Modifier.size(20.dp)) { drawRailIcon(screen, iconColor) }
+        Canvas(Modifier.size(20.dp)) { drawRailIcon(screen, content) }
+        AshText(screen.title, Ash.type.caption, color = content)
     }
 }
 

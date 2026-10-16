@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -63,6 +64,7 @@ import xyz.thewhish.rustopsy.ui.components.ActionRunner
 import xyz.thewhish.rustopsy.ui.components.Avatar
 import xyz.thewhish.rustopsy.ui.components.Popover
 import xyz.thewhish.rustopsy.ui.components.rememberActionRunner
+import xyz.thewhish.rustopsy.ui.components.pressScale
 import xyz.thewhish.rustopsy.ui.theme.Ash
 import xyz.thewhish.rustopsy.ui.theme.AshColors
 import xyz.thewhish.rustopsy.ui.theme.AshMotion
@@ -85,7 +87,7 @@ fun TeamButton(status: TeamStatus, open: Boolean, onClick: () -> Unit) {
     val team = ready?.state?.team
     val invites = ready?.state?.invites?.size ?: 0
     Row(
-        Modifier.height(36.dp).clip(AshShapes.control).background(background)
+        Modifier.scale(pressScale(interaction)).height(36.dp).clip(AshShapes.control).background(background)
             .hoverable(interaction).clickable(interaction, indication = null, onClick = onClick)
             .padding(start = if (team != null) 6.dp else 12.dp, end = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -419,7 +421,7 @@ internal fun SmallButton(text: String, primary: Boolean = false, enabled: Boolea
         },
         tween(AshMotion.MICRO),
     )
-    val base = Modifier.height(30.dp).clip(AshShapes.control).background(background)
+    val base = Modifier.scale(pressScale(interaction)).height(30.dp).clip(AshShapes.control).background(background)
     Box(
         (if (enabled) base.hoverable(interaction).clickable(interaction, indication = null, onClick = onClick) else base).padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center,

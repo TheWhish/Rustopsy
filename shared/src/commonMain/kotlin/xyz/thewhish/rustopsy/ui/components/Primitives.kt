@@ -8,8 +8,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,11 +26,15 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -36,10 +42,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import xyz.thewhish.rustopsy.ui.Format
 import xyz.thewhish.rustopsy.ui.theme.Ash
 import xyz.thewhish.rustopsy.ui.theme.AshColors
@@ -48,6 +58,9 @@ import xyz.thewhish.rustopsy.ui.theme.AshShapes
 import xyz.thewhish.rustopsy.ui.theme.AshSpace
 import xyz.thewhish.rustopsy.ui.theme.AshText
 import kotlin.time.Duration.Companion.milliseconds
+
+private val SEGMENT_HEIGHT = 30.dp
+private val SEGMENT_RADIUS = 6.dp
 
 @Composable
 fun Panel(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
@@ -128,34 +141,64 @@ fun SegmentedControl(
     val container = if (raised) AshColors.ash2 else AshColors.ash1
     val hover = if (raised) AshColors.ash3 else AshColors.ash2
     val active = if (raised) AshColors.ash4 else AshColors.ash3
-    Row(
-        modifier.clip(AshShapes.control).background(container).padding(3.dp),
-        horizontalArrangement = Arrangement.spacedBy(AshSpace.hair),
-    ) {
-        options.forEachIndexed { index, option ->
-            val interaction = remember { MutableInteractionSource() }
-            val hovered by interaction.collectIsHoveredAsState()
-            val background by animateColorAsState(
-                when {
-                    index == selected -> active
-                    hovered -> hover
-                    else -> container
-                },
-                tween(AshMotion.MICRO, easing = AshMotion.standard),
-            )
+    val segments = remember { mutableStateMapOf<Int, Segment>() }
+    val left = remember { Animatable(0f) }
+    val width = remember { Animatable(0f) }
+    var shown by remember { mutableStateOf<Int?>(null) }
+    val target = segments[selected]
+    LaunchedEffect(selected, target) {
+        if (target == null) return@LaunchedEffect
+        val glide = shown != null && shown != selected
+        shown = selected
+        if (glide) {
+            launch { left.animateTo(target.left, AshMotion.glide()) }
+            width.animateTo(target.width, AshMotion.glide())
+        } else {
+            left.snapTo(target.left)
+            width.snapTo(target.width)
+        }
+    }
+    Box(modifier.clip(AshShapes.control).background(container).padding(3.dp)) {
+        if (shown != null) {
             Box(
-                (if (fill) Modifier.weight(1f) else Modifier).height(30.dp)
-                    .clip(AshShapes.chip)
-                    .background(background)
-                    .hoverable(interaction)
-                    .clickable(interaction, indication = null) { onSelect(index) }
-                    .padding(horizontal = AshSpace.m),
-                contentAlignment = Alignment.Center,
-            ) {
-                AshText(option, Ash.type.secondary, color = if (index == selected) AshColors.text1 else AshColors.text2)
+                Modifier.matchParentSize().drawBehind {
+                    drawRoundRect(active, Offset(left.value, 0f), Size(width.value, size.height), CornerRadius(SEGMENT_RADIUS.toPx()))
+                },
+            )
+        }
+        Row(if (fill) Modifier.fillMaxWidth() else Modifier, horizontalArrangement = Arrangement.spacedBy(AshSpace.hair)) {
+            options.forEachIndexed { index, option ->
+                val interaction = remember { MutableInteractionSource() }
+                val hovered by interaction.collectIsHoveredAsState()
+                val background by animateColorAsState(
+                    hover.copy(alpha = if (hovered && index != selected) 1f else 0f),
+                    tween(AshMotion.MICRO, easing = AshMotion.standard),
+                )
+                val text by animateColorAsState(if (index == selected) AshColors.text1 else AshColors.text2, tween(AshMotion.SHORT, easing = AshMotion.standard))
+                Box(
+                    (if (fill) Modifier.weight(1f) else Modifier).height(SEGMENT_HEIGHT)
+                        .onPlaced { segments[index] = Segment(it.positionInParent().x, it.size.width.toFloat()) }
+                        .clip(AshShapes.chip)
+                        .background(background)
+                        .hoverable(interaction)
+                        .clickable(interaction, indication = null, role = Role.Tab) { onSelect(index) }
+                        .padding(horizontal = AshSpace.m),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    AshText(option, Ash.type.secondary, color = text)
+                }
             }
         }
     }
+}
+
+private data class Segment(val left: Float, val width: Float)
+
+@Composable
+fun pressScale(interaction: InteractionSource): Float {
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (pressed) AshMotion.PRESSED_SCALE else 1f, AshMotion.press())
+    return scale
 }
 
 @Composable
@@ -195,7 +238,7 @@ fun AshButton(text: String, modifier: Modifier = Modifier, primary: Boolean = fa
         },
         tween(AshMotion.MICRO, easing = AshMotion.standard),
     )
-    val base = modifier.sizeIn(minHeight = 40.dp).clip(AshShapes.control).background(background)
+    val base = modifier.scale(pressScale(interaction)).sizeIn(minHeight = 40.dp).clip(AshShapes.control).background(background)
     Box(
         if (enabled) base.hoverable(interaction).clickable(interaction, indication = null, onClick = onClick) else base,
         contentAlignment = Alignment.Center,

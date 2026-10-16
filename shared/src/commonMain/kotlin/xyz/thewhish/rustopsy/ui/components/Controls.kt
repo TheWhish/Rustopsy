@@ -55,7 +55,7 @@ fun AshSwitch(checked: Boolean, onChange: (Boolean) -> Unit, modifier: Modifier 
         },
         tween(AshMotion.SHORT),
     )
-    val shift by animateDpAsState(if (checked) SWITCH_WIDTH - SWITCH_THUMB - SWITCH_INSET * 2 else 0.dp, tween(AshMotion.SHORT, easing = AshMotion.standard))
+    val shift by animateDpAsState(if (checked) SWITCH_WIDTH - SWITCH_THUMB - SWITCH_INSET * 2 else 0.dp, AshMotion.glide())
     Box(
         modifier.size(SWITCH_WIDTH, SWITCH_HEIGHT).clip(CircleShape).background(track)
             .hoverable(interaction)

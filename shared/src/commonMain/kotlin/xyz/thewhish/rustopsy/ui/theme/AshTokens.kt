@@ -1,6 +1,9 @@
 package xyz.thewhish.rustopsy.ui.theme
 
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -56,7 +59,12 @@ object AshMotion {
     const val HP_COUNTER = 400
     const val GHOST_DELAY = 200
     const val GHOST_BURN = 600
+    const val PRESSED_SCALE = 0.97f
     val standard = CubicBezierEasing(0.2f, 0f, 0f, 1f)
     val enter = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
     val exit = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
+
+    fun <T> glide(): SpringSpec<T> = spring(Spring.DampingRatioNoBouncy, Spring.StiffnessMediumLow)
+
+    fun <T> press(): SpringSpec<T> = spring(Spring.DampingRatioNoBouncy, Spring.StiffnessMedium)
 }

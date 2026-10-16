@@ -38,14 +38,16 @@ import xyz.thewhish.rustopsy.ui.theme.AshColors
 import xyz.thewhish.rustopsy.ui.theme.AshMotion
 import xyz.thewhish.rustopsy.ui.theme.AshText
 
-private val SPACING = 6.dp
+private val PADDING = 8.dp
+private val GAP = 6.dp
 private val ROW_HEIGHT = 48.dp
 private val ROW_INSET = 12.dp
-private val FOOTER_HEIGHT = 28.dp
+private val FOOTER_HEIGHT = 12.dp
 private val HP_WIDTH = 96.dp
 private val TEAM_STRIPE = 2.dp
-private val ROW_SHAPE = RoundedCornerShape(6.dp)
-private val CARD_SHAPE = RoundedCornerShape(6.dp + SPACING)
+private val ROW_RADIUS = 4.dp
+private val ROW_SHAPE = RoundedCornerShape(ROW_RADIUS)
+private val CARD_SHAPE = RoundedCornerShape(ROW_RADIUS + PADDING)
 private const val BORDER_ALPHA = 0.06f
 private const val SHADOW_BELOW_ROWS = 0.75f
 private const val BRIGHT_FOOTER_BELOW = 0.5f
@@ -53,7 +55,7 @@ private val CENTERED = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHei
 private val TEXT_SHADOW = Shadow(Color.Black.copy(alpha = 0.6f), Offset(0f, 1f), blurRadius = 3f)
 
 val OVERLAY_CARD_WIDTH = 280.dp
-val OVERLAY_CARD_MAX_HEIGHT = SPACING * 2 + (ROW_HEIGHT + SPACING) * OVERLAY_MAX_ROWS + FOOTER_HEIGHT
+val OVERLAY_CARD_MAX_HEIGHT = PADDING * 3 + ROW_HEIGHT * OVERLAY_MAX_ROWS + GAP * (OVERLAY_MAX_ROWS - 1) + FOOTER_HEIGHT
 
 @Composable
 fun OverlayCard(model: OverlayModel, nowSec: Double, backgroundOpacity: Float, rowsOpacity: Float, modifier: Modifier = Modifier) {
@@ -64,14 +66,15 @@ fun OverlayCard(model: OverlayModel, nowSec: Double, backgroundOpacity: Float, r
             .clip(CARD_SHAPE)
             .background(AshColors.ash0.copy(alpha = backgroundOpacity))
             .border(1.dp, AshColors.text1.copy(alpha = BORDER_ALPHA * backgroundOpacity), CARD_SHAPE)
-            .padding(SPACING)
+            .padding(PADDING)
             .animateContentSize(tween(AshMotion.MEDIUM, easing = AshMotion.standard)),
-        verticalArrangement = Arrangement.spacedBy(SPACING),
+        verticalArrangement = Arrangement.spacedBy(GAP),
     ) {
         model.enemies.forEach { enemy ->
             key(enemy.number) { EnemyRow(enemy, rowColor, shadow) }
         }
-        Footer(model, nowSec, shadow, if (backgroundOpacity < BRIGHT_FOOTER_BELOW) AshColors.text2 else AshColors.text3)
+        val bareFooter = backgroundOpacity < BRIGHT_FOOTER_BELOW
+        Footer(model, nowSec, TEXT_SHADOW.takeIf { bareFooter }, if (bareFooter) AshColors.text1 else AshColors.text3)
     }
 }
 
@@ -110,7 +113,7 @@ private fun Hp(enemy: EnemySummary, shadow: Shadow?) {
 @Composable
 private fun Footer(model: OverlayModel, nowSec: Double, shadow: Shadow?, color: Color) {
     val style = Ash.type.label.overlay(shadow)
-    Row(Modifier.fillMaxWidth().height(FOOTER_HEIGHT).padding(horizontal = ROW_INSET), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().padding(top = PADDING - GAP).height(FOOTER_HEIGHT), verticalAlignment = Alignment.CenterVertically) {
         AshText("Последний хит: ${Format.ago(nowSec - model.lastHitSec)}", style, color = color)
         Spacer(Modifier.weight(1f))
         AshText("Убито ${model.killed} из ${model.total}", style, color = color)

@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -49,6 +50,7 @@ import xyz.thewhish.rustopsy.ui.overlay.OverlayAccess
 import xyz.thewhish.rustopsy.ui.overlay.OverlayCorner
 import xyz.thewhish.rustopsy.ui.overlay.OverlaySettings
 import xyz.thewhish.rustopsy.ui.overlay.alignment
+import xyz.thewhish.rustopsy.ui.components.pressScale
 import xyz.thewhish.rustopsy.ui.theme.Ash
 import xyz.thewhish.rustopsy.ui.theme.AshColors
 import xyz.thewhish.rustopsy.ui.theme.AshMotion
@@ -68,7 +70,7 @@ fun OverlayButton(enabled: Boolean, open: Boolean, onClick: () -> Unit) {
     val hovered by interaction.collectIsHoveredAsState()
     val background by animateColorAsState(if (open || hovered) AshColors.ash3 else AshColors.ash2, tween(AshMotion.MICRO))
     Row(
-        Modifier.height(36.dp).clip(AshShapes.control).background(background)
+        Modifier.scale(pressScale(interaction)).height(36.dp).clip(AshShapes.control).background(background)
             .hoverable(interaction).clickable(interaction, indication = null, onClick = onClick)
             .padding(start = 12.dp, end = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -208,7 +210,7 @@ private fun CornerCell(selected: Boolean, modifier: Modifier, onClick: () -> Uni
     val background by animateColorAsState(if (selected || hovered) AshColors.ash4 else AshColors.ash3, tween(AshMotion.MICRO))
     val border by animateColorAsState(if (selected) AshColors.ember else Color.Transparent, tween(AshMotion.MICRO))
     Box(
-        modifier.size(CORNER_WIDTH, CORNER_HEIGHT).clip(AshShapes.chip).background(background)
+        modifier.scale(pressScale(interaction)).size(CORNER_WIDTH, CORNER_HEIGHT).clip(AshShapes.chip).background(background)
             .border(1.5.dp, border, AshShapes.chip)
             .hoverable(interaction).clickable(interaction, indication = null, onClick = onClick),
     )
