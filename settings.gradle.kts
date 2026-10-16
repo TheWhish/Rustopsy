@@ -34,3 +34,4 @@ plugins {
 include(":core")
 include(":desktopApp")
 include(":shared")
+include(":server")

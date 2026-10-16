@@ -9,6 +9,8 @@ class AppDirs(val root: Path) {
     val config: Path = root.resolve("config.json")
     val logs: Path = root.resolve("logs")
     val lock: Path = root.resolve(".lock")
+    val backups: Path = root.resolve("backups")
+    val session: Path = root.resolve("session.bin")
 
     fun create(): AppDirs {
         Files.createDirectories(logs)

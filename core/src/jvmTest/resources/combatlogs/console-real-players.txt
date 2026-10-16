@@ -1,0 +1,55 @@
+10/15/2026 13:57:03 accessibility.holosightcolour: "2"
+10/15/2026 13:57:03 accessibility.holosightcolour: "0"
+10/15/2026 13:57:04 accessibility.holosightcolour: "2"
+10/15/2026 13:57:04 graphics.fov: "90"
+10/15/2026 13:57:06 accessibility.holosightcolour: "2"
+10/15/2026 13:57:06 accessibility.holosightcolour: "0"
+10/15/2026 13:57:06 graphics.fov: "90"
+10/15/2026 13:57:06 graphics.fov: "70"
+10/15/2026 13:57:07 graphics.fov: "90"
+10/15/2026 13:57:07 accessibility.holosightcolour: "2"
+10/15/2026 13:57:07 graphics.vm_horizontal_flip: "False"
+10/15/2026 13:57:07 graphics.vm_horizontal_flip: "True"
+10/15/2026 13:57:09 graphics.fov: "90"
+10/15/2026 13:57:09 graphics.fov: "70"
+10/15/2026 13:57:11 accessibility.holosightcolour: "2"
+10/15/2026 13:57:11 accessibility.holosightcolour: "0"
+10/15/2026 13:57:12 accessibility.holosightcolour: "2"
+10/15/2026 13:57:12 graphics.fov: "90"
+10/15/2026 13:57:12 graphics.vm_horizontal_flip: "False"
+10/15/2026 13:57:12 accessibility.holosightcolour: "2"
+10/15/2026 13:57:12 accessibility.holosightcolour: "0"
+10/15/2026 13:57:13 accessibility.holosightcolour: "2"
+10/15/2026 13:57:24 time   attacker                 target                   weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:57:24 42.87s player_76561190000000001 you                      assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 9.0m     50.0   25.0                            0    1.00      0.02s  0.00m    11
+10/15/2026 13:57:24 42.83s you                      player_76561190000000001 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     8.8m     100.0  82.5                            0    1.00      0.02s  0.00m    19
+10/15/2026 13:57:24 42.73s player_76561190000000001 you                      assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet leg     9.0m     25.0   0.6                             0    1.00      0.02s  0.00m    20
+10/15/2026 13:57:24 42.60s player_76561190000000001 you                      assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 9.1m     0.6    100.0                           0    1.00      0.02s  0.00m    20
+10/15/2026 13:57:24 42.23s you                      N/A                      N/A                                              N/A         generic 140.3m   0.0    0.0    projectile_invalid       0    0.00      0.42s  0.00m    0
+10/15/2026 13:57:24 34.40s you                      player_76561190000000004 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet head    11.4m    100.0  50.0                            0    1.00      0.03s  0.00m    26
+10/15/2026 13:57:24 34.27s you                      player_76561190000000004 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet head    11.3m    50.0   100.0                           0    1.00      0.03s  0.00m    26
+10/15/2026 13:57:24 30.90s you                      player_76561190000000004 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 6.8m     100.0  82.5                            0    1.00      0.02s  0.00m    14
+10/15/2026 13:57:24 30.77s you                      player_76561190000000004 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet leg     6.4m     82.5   58.1                            0    1.00      0.02s  0.00m    13
+10/15/2026 13:57:24 30.63s you                      player_76561190000000004 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet foot    6.6m     58.1   33.8                            0    1.00      0.02s  0.00m    13
+10/15/2026 13:57:24 30.37s you                      player_76561190000000004 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet head    5.9m     33.8   100.0                           0    1.00      0.02s  0.00m    11
+10/15/2026 13:57:24 30.23s you                      player_76561190000000004 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    5.6m     0.0    100.0  projectile_network_range 0    1.00      0.02s  0.00m    11
+10/15/2026 13:57:24 27.93s you                      N/A                      N/A                                              riflebullet generic 512.6m   0.0    0.0    trajectory_start         0    1.00      6.73s  0.00m    123
+10/15/2026 13:57:24 27.93s you                      N/A                      N/A                                              riflebullet generic 512.6m   0.0    0.0    trajectory_end           0    1.00      6.73s  0.00m    123
+10/15/2026 13:57:24 26.97s player_76561190000000002 you                      assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     3.8m     100.0  72.5                            0    1.00      0.01s  0.00m    6
+10/15/2026 13:57:24 26.50s you                      player_76561190000000002 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 4.1m     100.0  75.0                            0    1.00      0.01s  0.00m    7
+10/15/2026 13:57:24 20.90s you                      player_76561190000000002 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet head    5.4m     74.3   24.3                            0    1.00      0.01s  0.00m    10
+10/15/2026 13:57:24 20.80s player_76561190000000002 you                      assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    5.2m     71.4   43.9                            0    1.00      0.01s  0.00m    9
+10/15/2026 13:57:24 20.73s you                      player_76561190000000002 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    4.8m     24.3   100.0                           0    1.00      0.01s  0.00m    8
+10/15/2026 13:57:24 18.10s player_76561190000000001 you                      assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet leg     6.4m     100.0  79.4                            0    1.00      0.02s  0.00m    13
+10/15/2026 13:57:24 18.00s you                      player_76561190000000001 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet head    6.1m     100.0  50.0                            0    1.00      0.02s  0.00m    12
+10/15/2026 13:57:24 17.96s player_76561190000000001 you                      assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     6.2m     79.4   56.9                            0    1.00      0.02s  0.00m    10
+10/15/2026 13:57:24 17.73s you                      player_76561190000000001 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet head    6.1m     50.0   100.0                           0    1.00      0.02s  0.00m    12
+10/15/2026 13:57:24 17.60s you                      player_76561190000000001 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    5.6m     0.0    100.0  projectile_network_range 0    1.00      0.02s  0.00m    11
+10/15/2026 13:57:24 13.10s you                      player_76561190000000003 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    31.6m    100.0  73.3                            0    1.00      0.09s  0.00m    81
+10/15/2026 13:57:24 13.03s player_76561190000000003 you                      assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet head    32.1m    100.0  51.5                            0    1.00      0.09s  0.00m    83
+10/15/2026 13:57:24 12.96s you                      player_76561190000000003 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    31.3m    73.3   46.6                            0    1.00      0.08s  0.00m    80
+10/15/2026 13:57:24 12.83s you                      player_76561190000000003 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet leg     31.5m    46.6   22.9                            0    1.00      0.09s  0.00m    81
+10/15/2026 13:57:24 12.70s you                      player_76561190000000003 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 31.4m    22.9   100.0                           0    1.00      0.09s  0.00m    81
+10/15/2026 13:57:24 12.53s you                      player_76561190000000003 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     30.7m    0.0    100.0  projectile_network_range 0    1.00      0.08s  0.00m    79
+10/15/2026 13:57:25 > bind f2 "combatlog;console.copy"
+10/15/2026 13:57:25 Set bind 'f2' to command 'combatlog;console.copy'

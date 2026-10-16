@@ -10,6 +10,7 @@ import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 @Serializable
 data class Settings(
     val debugLogging: Boolean = false,
+    val gameLogPath: String? = null,
 )
 
 class SettingsStore(private val file: Path) {

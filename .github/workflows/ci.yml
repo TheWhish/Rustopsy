@@ -22,7 +22,7 @@ jobs:
       - name: Safety guard
         shell: bash
         run: |
-          forbidden='OpenProcess|ReadProcessMemory|WriteProcessMemory|CreateRemoteThread|SendInput|keybd_event|mouse_event|SetWindowsHookEx|WH_KEYBOARD_LL|WH_MOUSE_LL|java\.awt\.Robot|jnativehook'
+          forbidden='OpenProcess|allProcesses|ReadProcessMemory|WriteProcessMemory|CreateRemoteThread|SendInput|keybd_event|mouse_event|SetWindowsHookEx|WH_KEYBOARD_LL|WH_MOUSE_LL|java\.awt\.Robot|jnativehook'
           if git grep -nIE "$forbidden" -- '*.kt' '*.kts' '*.toml'; then
             echo "Forbidden API found, see docs/SAFETY.md"
             exit 1
@@ -33,7 +33,15 @@ jobs:
           fi
 
       - name: Tests
-        run: ./gradlew :core:jvmTest :shared:jvmTest -q
+        run: ./gradlew :core:jvmTest :shared:jvmTest :server:test -q
+
+      - name: Server jar
+        run: ./gradlew :server:buildFatJar -q
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: rustopsy-server
+          path: server/build/libs/rustopsy-server.jar
 
       - name: Package MSI
         if: startsWith(github.ref, 'refs/tags/v')

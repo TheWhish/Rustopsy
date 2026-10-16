@@ -1,0 +1,180 @@
+10/15/2026 13:23:33 accessibility.holosightcolour: "2"
+10/15/2026 13:23:33 graphics.fov: "90"
+10/15/2026 13:23:33 time   attacker target       weapon                                           ammo        area  distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:23:33 16.48s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest 23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59
+10/15/2026 13:23:33 + 2 events in the last 10 seconds
+10/15/2026 13:24:27 graphics.fov: "90"
+10/15/2026 13:24:27 graphics.fov: "70"
+10/15/2026 13:24:28 accessibility.holosightcolour: "2"
+10/15/2026 13:24:28 accessibility.holosightcolour: "0"
+10/15/2026 13:24:28 accessibility.holosightcolour: "2"
+10/15/2026 13:24:28 graphics.fov: "90"
+10/15/2026 13:24:29 graphics.vm_horizontal_flip: "False"
+10/15/2026 13:24:29 graphics.fov: "90"
+10/15/2026 13:24:29 graphics.fov: "70"
+10/15/2026 13:24:30 accessibility.holosightcolour: "2"
+10/15/2026 13:24:30 accessibility.holosightcolour: "0"
+10/15/2026 13:24:31 accessibility.holosightcolour: "2"
+10/15/2026 13:24:31 graphics.fov: "90"
+10/15/2026 13:24:31 time   attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:24:31 74.61s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59
+10/15/2026 13:24:31 65.37s you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27
+10/15/2026 13:24:31 62.80s you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32
+10/15/2026 13:24:31 + 1 event in the last 10 seconds
+10/15/2026 13:24:36 time   attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:24:36 79.31s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59
+10/15/2026 13:24:36 70.07s you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27
+10/15/2026 13:24:36 67.50s you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32
+10/15/2026 13:24:36 + 1 event in the last 10 seconds
+10/15/2026 13:24:40 accessibility.holosightcolour: "2"
+10/15/2026 13:24:40 accessibility.holosightcolour: "0"
+10/15/2026 13:24:40 graphics.fov: "90"
+10/15/2026 13:24:40 graphics.fov: "70"
+10/15/2026 13:24:42 accessibility.holosightcolour: "2"
+10/15/2026 13:24:42 graphics.fov: "90"
+10/15/2026 13:24:42 time   attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:24:42 85.68s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59
+10/15/2026 13:24:42 76.43s you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27
+10/15/2026 13:24:42 73.87s you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32
+10/15/2026 13:24:42 14.23s you      player_15420 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     17.7m    0.0    100.0  projectile_network_range 0    1.00      0.05s  0.00m    43
+10/15/2026 13:24:42 + 1 event in the last 10 seconds
+10/15/2026 13:24:46 graphics.fov: "90"
+10/15/2026 13:24:46 graphics.fov: "70"
+10/15/2026 13:24:47 accessibility.holosightcolour: "2"
+10/15/2026 13:24:47 accessibility.holosightcolour: "0"
+10/15/2026 13:24:47 accessibility.holosightcolour: "2"
+10/15/2026 13:24:48 accessibility.holosightcolour: "2"
+10/15/2026 13:24:48 accessibility.holosightcolour: "0"
+10/15/2026 13:24:49 accessibility.holosightcolour: "2"
+10/15/2026 13:24:49 accessibility.holosightcolour: "2"
+10/15/2026 13:24:49 accessibility.holosightcolour: "0"
+10/15/2026 13:24:50 accessibility.holosightcolour: "2"
+10/15/2026 13:24:51 graphics.fov: "90"
+10/15/2026 13:24:53 time   attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:24:53 96.51s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59
+10/15/2026 13:24:53 87.27s you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27
+10/15/2026 13:24:53 84.70s you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32
+10/15/2026 13:24:53 25.07s you      player_15420 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     17.7m    0.0    100.0  projectile_network_range 0    1.00      0.05s  0.00m    43
+10/15/2026 13:24:53 11.13s you      player_15704 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     24.2m    0.0    100.0  projectile_network_range 0    1.00      0.07s  0.00m    61
+10/15/2026 13:24:58 time    attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:24:58 101.11s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59
+10/15/2026 13:24:58 91.87s  you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27
+10/15/2026 13:24:58 89.30s  you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32
+10/15/2026 13:24:58 29.67s  you      player_15420 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     17.7m    0.0    100.0  projectile_network_range 0    1.00      0.05s  0.00m    43
+10/15/2026 13:24:58 15.73s  you      player_15704 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     24.2m    0.0    100.0  projectile_network_range 0    1.00      0.07s  0.00m    61
+10/15/2026 13:24:59 time    attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:24:59 102.31s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59
+10/15/2026 13:24:59 93.07s  you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27
+10/15/2026 13:24:59 90.50s  you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32
+10/15/2026 13:24:59 30.87s  you      player_15420 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     17.7m    0.0    100.0  projectile_network_range 0    1.00      0.05s  0.00m    43
+10/15/2026 13:24:59 16.94s  you      player_15704 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     24.2m    0.0    100.0  projectile_network_range 0    1.00      0.07s  0.00m    61
+10/15/2026 13:25:00 time    attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:25:00 103.18s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59
+10/15/2026 13:25:00 93.93s  you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27
+10/15/2026 13:25:00 91.37s  you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32
+10/15/2026 13:25:00 31.73s  you      player_15420 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     17.7m    0.0    100.0  projectile_network_range 0    1.00      0.05s  0.00m    43
+10/15/2026 13:25:00 17.80s  you      player_15704 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     24.2m    0.0    100.0  projectile_network_range 0    1.00      0.07s  0.00m    61
+10/15/2026 13:25:03 graphics.fov: "90"
+10/15/2026 13:25:03 graphics.fov: "70"
+10/15/2026 13:25:03 accessibility.holosightcolour: "2"
+10/15/2026 13:25:03 accessibility.holosightcolour: "0"
+10/15/2026 13:25:04 accessibility.holosightcolour: "2"
+10/15/2026 13:25:04 graphics.fov: "90"
+10/15/2026 13:25:05 graphics.vm_horizontal_flip: "True"
+10/15/2026 13:25:05 graphics.fov: "90"
+10/15/2026 13:25:05 graphics.fov: "70"
+10/15/2026 13:25:06 accessibility.holosightcolour: "2"
+10/15/2026 13:25:06 accessibility.holosightcolour: "0"
+10/15/2026 13:25:07 accessibility.holosightcolour: "2"
+10/15/2026 13:25:08 accessibility.holosightcolour: "2"
+10/15/2026 13:25:08 accessibility.holosightcolour: "0"
+10/15/2026 13:25:09 accessibility.holosightcolour: "2"
+10/15/2026 13:25:09 graphics.fov: "90"
+10/15/2026 13:25:13 graphics.fov: "90"
+10/15/2026 13:25:13 graphics.fov: "70"
+10/15/2026 13:25:14 accessibility.holosightcolour: "2"
+10/15/2026 13:25:14 accessibility.holosightcolour: "0"
+10/15/2026 13:25:15 accessibility.holosightcolour: "2"
+10/15/2026 13:25:16 accessibility.holosightcolour: "2"
+10/15/2026 13:25:16 accessibility.holosightcolour: "0"
+10/15/2026 13:25:18 accessibility.holosightcolour: "2"
+10/15/2026 13:25:19 accessibility.holosightcolour: "2"
+10/15/2026 13:25:19 accessibility.holosightcolour: "0"
+10/15/2026 13:25:19 accessibility.holosightcolour: "2"
+10/15/2026 13:25:21 accessibility.holosightcolour: "2"
+10/15/2026 13:25:21 accessibility.holosightcolour: "0"
+10/15/2026 13:25:21 accessibility.holosightcolour: "2"
+10/15/2026 13:25:22 accessibility.holosightcolour: "2"
+10/15/2026 13:25:22 accessibility.holosightcolour: "0"
+10/15/2026 13:25:23 accessibility.holosightcolour: "2"
+10/15/2026 13:25:24 accessibility.holosightcolour: "2"
+10/15/2026 13:25:24 accessibility.holosightcolour: "0"
+10/15/2026 13:25:25 accessibility.holosightcolour: "2"
+10/15/2026 13:25:26 accessibility.holosightcolour: "2"
+10/15/2026 13:25:26 accessibility.holosightcolour: "0"
+10/15/2026 13:25:26 accessibility.holosightcolour: "2"
+10/15/2026 13:25:27 accessibility.holosightcolour: "2"
+10/15/2026 13:25:27 accessibility.holosightcolour: "0"
+10/15/2026 13:25:27 accessibility.holosightcolour: "2"
+10/15/2026 13:25:28 accessibility.holosightcolour: "2"
+10/15/2026 13:25:28 accessibility.holosightcolour: "0"
+10/15/2026 13:25:28 accessibility.holosightcolour: "2"
+10/15/2026 13:25:31 accessibility.holosightcolour: "2"
+10/15/2026 13:25:31 accessibility.holosightcolour: "0"
+10/15/2026 13:25:33 accessibility.holosightcolour: "2"
+10/15/2026 13:25:33 graphics.fov: "90"
+10/15/2026 13:25:36 graphics.fov: "90"
+10/15/2026 13:25:36 graphics.fov: "70"
+10/15/2026 13:25:37 accessibility.holosightcolour: "2"
+10/15/2026 13:25:37 accessibility.holosightcolour: "0"
+10/15/2026 13:25:37 accessibility.holosightcolour: "2"
+10/15/2026 13:25:38 accessibility.holosightcolour: "2"
+10/15/2026 13:25:38 accessibility.holosightcolour: "0"
+10/15/2026 13:25:39 accessibility.holosightcolour: "2"
+10/15/2026 13:25:39 graphics.fov: "90"
+10/15/2026 13:25:39 graphics.vm_horizontal_flip: "False"
+10/15/2026 13:25:40 graphics.vm_horizontal_flip: "True"
+10/15/2026 13:25:40 graphics.fov: "90"
+10/15/2026 13:25:40 graphics.fov: "70"
+10/15/2026 13:25:41 accessibility.holosightcolour: "2"
+10/15/2026 13:25:41 accessibility.holosightcolour: "0"
+10/15/2026 13:25:42 accessibility.holosightcolour: "2"
+10/15/2026 13:25:43 accessibility.holosightcolour: "2"
+10/15/2026 13:25:43 accessibility.holosightcolour: "0"
+10/15/2026 13:25:43 accessibility.holosightcolour: "2"
+10/15/2026 13:25:43 graphics.fov: "90"
+10/15/2026 13:25:44 graphics.fov: "90"
+10/15/2026 13:25:44 graphics.fov: "70"
+10/15/2026 13:25:45 accessibility.holosightcolour: "2"
+10/15/2026 13:25:45 accessibility.holosightcolour: "0"
+10/15/2026 13:25:46 accessibility.holosightcolour: "2"
+10/15/2026 13:25:46 accessibility.holosightcolour: "2"
+10/15/2026 13:25:46 accessibility.holosightcolour: "0"
+10/15/2026 13:25:47 accessibility.holosightcolour: "2"
+10/15/2026 13:25:48 accessibility.holosightcolour: "2"
+10/15/2026 13:25:48 accessibility.holosightcolour: "0"
+10/15/2026 13:25:49 accessibility.holosightcolour: "2"
+10/15/2026 13:25:49 graphics.fov: "90"
+10/15/2026 13:25:50 graphics.fov: "90"
+10/15/2026 13:25:50 graphics.fov: "70"
+10/15/2026 13:25:51 accessibility.holosightcolour: "2"
+10/15/2026 13:25:51 accessibility.holosightcolour: "0"
+10/15/2026 13:25:52 accessibility.holosightcolour: "2"
+10/15/2026 13:25:53 accessibility.holosightcolour: "2"
+10/15/2026 13:25:53 accessibility.holosightcolour: "0"
+10/15/2026 13:25:53 accessibility.holosightcolour: "2"
+10/15/2026 13:25:54 graphics.fov: "90"
+10/15/2026 13:25:54 graphics.vm_horizontal_flip: "False"
+10/15/2026 13:25:55 graphics.vm_horizontal_flip: "True"
+10/15/2026 13:25:55 graphics.vm_horizontal_flip: "False"
+10/15/2026 13:25:55 graphics.vm_horizontal_flip: "True"
+10/15/2026 13:25:56 graphics.vm_horizontal_flip: "False"
+10/15/2026 13:25:58 time    attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync
+10/15/2026 13:25:58 160.88s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59
+10/15/2026 13:25:58 151.63s you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27
+10/15/2026 13:25:58 149.06s you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32
+10/15/2026 13:25:58 89.43s  you      player_15420 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     17.7m    0.0    100.0  projectile_network_range 0    1.00      0.05s  0.00m    43
+10/15/2026 13:25:58 75.50s  you      player_15704 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     24.2m    0.0    100.0  projectile_network_range 0    1.00      0.07s  0.00m    61
+10/15/2026 13:25:58 39.67s  you      player_15851 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet head    55.6m    0.0    100.0  projectile_network_range 0    1.00      0.15s  0.00m    116
+10/15/2026 13:25:58 14.33s  you      player_16042 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet leg     59.4m    0.0    100.0  projectile_network_range 0    1.00      0.16s  0.00m    127
+10/15/2026 13:25:58 11.93s  you      player_15626 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet arm     42.8m    0.0    100.0  projectile_network_range 0    1.00      0.12s  0.00m    113

@@ -11,6 +11,7 @@ dependencies {
 
     implementation(compose.desktop.currentOs)
     implementation(libs.kotlinx.coroutinesSwing)
+    implementation(libs.jna)
 
     implementation(libs.compose.uiToolingPreview)
 }
@@ -24,7 +25,7 @@ compose.desktop {
             targetFormats(TargetFormat.Msi)
             packageName = "Rustopsy"
             packageVersion = "1.0.0"
-            modules("java.instrument", "jdk.unsupported")
+            modules("java.instrument", "jdk.unsupported", "java.net.http", "jdk.httpserver")
 
             windows {
                 upgradeUuid = "049839ef-4b28-4048-b777-4219b93c5e8a"

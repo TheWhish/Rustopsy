@@ -22,9 +22,16 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(libs.kotlinx.serializationJson)
+            implementation(libs.kotlinx.coroutinesCore)
+            implementation(libs.jna)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+        jvmTest.dependencies {
+            implementation(libs.kotlinx.coroutinesTest)
+            implementation(libs.ktor.serverCio)
+            implementation(libs.ktor.serverWebsockets)
         }
     }
 }

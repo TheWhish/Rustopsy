@@ -1,0 +1,49 @@
+Client:Update()
+
+2026-10-15T10:24:27.822Z|0x5f18|graphics.fov: "90"
+2026-10-15T10:24:27.822Z|0x5f18|graphics.fov: "70"
+2026-10-15T10:24:28.399Z|0x5f18|accessibility.holosightcolour: "2"
+2026-10-15T10:24:28.399Z|0x5f18|accessibility.holosightcolour: "0"
+2026-10-15T10:24:28.844Z|0x5f18|accessibility.holosightcolour: "2"
+2026-10-15T10:24:28.844Z|0x5f18|graphics.fov: "90"
+2026-10-15T10:24:29.086Z|0x5f18|graphics.vm_horizontal_flip: "False"
+2026-10-15T10:24:29.623Z|0x5f18|graphics.fov: "90"
+2026-10-15T10:24:29.623Z|0x5f18|graphics.fov: "70"
+2026-10-15T10:24:30.185Z|0x5f18|accessibility.holosightcolour: "2"
+2026-10-15T10:24:30.186Z|0x5f18|accessibility.holosightcolour: "0"
+2026-10-15T10:24:31.467Z|0x5f18|accessibility.holosightcolour: "2"
+2026-10-15T10:24:31.504Z|0x5f18|graphics.fov: "90"
+2026-10-15T10:24:31.874Z|0x5f18|time   attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync 
+74.61s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59     
+65.37s you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27     
+62.80s you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32     
++ 1 event in the last 10 seconds
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Client:%846ebdd2e3335eaa059f5620447673e52cd8a05b()
+%70c46bed7ca89de34c7f8db1a760f786d48df745:%2c73490922876924dd511fa95b0872417457bebc()
+%c1f6d04bc128bf44dd56ef87a6e25d9cd5116337:%b93e1901f7ca88cf8f9d362fbd1ec716ea6386fd()
+Client:Update()
+
+2026-10-15T10:24:36.570Z|0x5f18|time   attacker target       weapon                                           ammo        area    distance old_hp new_hp info                     hits integrity travel mismatch desync 
+79.31s you      player_15374 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet chest   23.5m    0.0    100.0  projectile_network_range 0    1.00      0.06s  0.00m    59     
+70.07s you      player_15352 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet stomach 11.9m    0.0    100.0  projectile_network_range 0    1.00      0.03s  0.00m    27     
+67.50s you      player_15334 assets/prefabs/weapons/ak47u/ak47u.entity.prefab riflebullet hand    13.6m    0.0    100.0  projectile_network_range 0    1.00      0.04s  0.00m    32     
++ 1 event in the last 10 seconds
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Client:%846ebdd2e3335eaa059f5620447673e52cd8a05b()
+%70c46bed7ca89de34c7f8db1a760f786d48df745:%2c73490922876924dd511fa95b0872417457bebc()
+%c1f6d04bc128bf44dd56ef87a6e25d9cd5116337:%b93e1901f7ca88cf8f9d362fbd1ec716ea6386fd()
+Client:Update()
+
+2026-10-15T10:24:40.576Z|0x5f18|accessibility.holosightcolour: "2"
+2026-10-15T10:24:40.577Z|0x5f18|accessibility.holosightcolour: "0"
+2026-10-15T10:24:40.577Z|0x5f18|graphics.fov: "90"
+2026-10-15T10:24:40.577Z|0x5f18|graphics.fov: "70"
+2026-10-15T10:24:42.624Z|0x5f18|accessibility.holosightcolour: "2"
+2026-10-15T10:24:42.658Z|0x5f18|graphics.fov: "90"
