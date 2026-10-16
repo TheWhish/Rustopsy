@@ -48,7 +48,7 @@ class FightAnalyzerTest {
         val life = life(event(0.0, 100.0, 60.0), event(0.2, 60.0, 0.0, info = KILLED))
 
         assertEquals(Condition.DEAD, life.condition)
-        assertEquals(Actor.YOU, life.killedBy)
+        assertEquals(Actor.You, life.killedBy)
         assertEquals(100.0, life.dealtDamage)
         assertEquals(emptyMap(), life.rejected)
         assertEquals(listOf(Outcome.HIT, Outcome.KILL), life.hits.map { it.outcome })
@@ -59,7 +59,7 @@ class FightAnalyzerTest {
         val life = life(event(0.0, 100.0, 54.1), event(0.3, 54.1, 8.2), event(0.4, 8.2, 9.0))
 
         assertEquals(Condition.KNOCKED, life.condition)
-        assertEquals(Actor.YOU, life.knockedBy)
+        assertEquals(Actor.You, life.knockedBy)
         assertEquals(9.0, life.hp)
         assertEquals(100.0, life.dealtDamage, 1e-9)
     }
@@ -94,8 +94,8 @@ class FightAnalyzerTest {
     fun finishWithoutYourKnockMeansSomeoneElseKnocked() {
         val life = life(event(0.0, 100.0, 70.0), event(4.0, 9.0, 4.0, info = KILLED))
 
-        assertEquals(Actor.OTHERS, life.knockedBy)
-        assertEquals(Actor.YOU, life.killedBy)
+        assertEquals(Actor.Others, life.knockedBy)
+        assertEquals(Actor.You, life.killedBy)
         assertEquals(70.0, life.othersDamage)
         assertEquals(listOf(HpChange(4.0, -70.0, knocked = true)), life.hpChanges)
     }

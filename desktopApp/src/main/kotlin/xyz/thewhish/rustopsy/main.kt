@@ -95,7 +95,7 @@ fun main() {
                 captures
                     .catch { appLogger.log(Level.SEVERE, "Combat log capture stopped", it) }
                     .collect { capture ->
-                        session.accept(capture)
+                        team.share(session.accept(capture))
                         val state = session.state.value
                         appLogger.fine("Combat log captured: ${capture.snapshot.rows.size} rows, session ${state.events.size} events, hidden ${state.hidden?.count ?: 0}")
                     }

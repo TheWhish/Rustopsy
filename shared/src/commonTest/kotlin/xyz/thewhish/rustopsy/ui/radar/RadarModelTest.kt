@@ -41,7 +41,7 @@ class RadarModelTest {
         assertEquals(
             EnemySummary(
                 number = 1, weapon = "ak47u", distanceM = 20.0, hp = 40.0, condition = Condition.ALIVE, knockedBy = null, killedBy = null,
-                deaths = 0, dealt = 80.0, others = 0.0, healed = 20.0, invalid = 1,
+                deaths = 0, dealt = 80.0, team = 0.0, others = 0.0, healed = 20.0, invalid = 1, seenByYou = true,
             ),
             enemyModel.summary(),
         )
@@ -65,7 +65,7 @@ class RadarModelTest {
         val summary = enemy.summary()
 
         assertEquals(Condition.DEAD, summary.condition)
-        assertEquals(Actor.OTHERS, summary.knockedBy)
+        assertEquals(Actor.Others, summary.knockedBy)
         assertEquals(70.0, summary.others)
         assertEquals(listOf(EventKind.Hit, EventKind.KnockedByOthers, EventKind.Hit), enemy.eventLines().map { it.kind })
         assertEquals(Outcome.FINISH, enemy.eventLines().first().outcome)
@@ -95,6 +95,21 @@ class RadarModelTest {
         assertEquals(before.map { it.key }, after.drop(1).map { it.key })
         assertEquals(2, before.single { it.kind == EventKind.Incoming }.count)
         assertEquals(21.0, before.single { it.kind == EventKind.Incoming }.amount!!, 1e-9)
+    }
+
+    @Test
+    fun teammateHitsAreNamedAndCountedSeparately() {
+        val mate = 76561198000000002
+        val theirs = CombatEvent(2.0, event(2.0, 60.0, 30.0).row.copy(attacker = Party("player", mate)), teammate = mate)
+        val fight = FightAnalyzer.analyze(listOf(event(0.0, 100.0, 60.0), theirs), setOf(mate)).single()
+        val enemy = fight.enemies.single()
+        val line = enemy.eventLines(mapOf(mate to "Mate")).first()
+
+        assertEquals(EventKind.Team, line.kind)
+        assertEquals("Mate", line.teammate)
+        assertEquals(30.0, enemy.summary().team)
+        assertEquals(40.0, fight.totals().dealt)
+        assertEquals(listOf(Contribution(Actor.You, 40.0, 0, 0), Contribution(Actor.Teammate(mate), 30.0, 0, 0)), enemy.contributions())
     }
 
     @Test

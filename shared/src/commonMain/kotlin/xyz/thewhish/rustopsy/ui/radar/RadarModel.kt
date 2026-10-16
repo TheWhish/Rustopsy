@@ -19,12 +19,14 @@ data class EnemySummary(
     val killedBy: Actor?,
     val deaths: Int,
     val dealt: Double,
+    val team: Double,
     val others: Double,
     val healed: Double,
     val invalid: Int,
+    val seenByYou: Boolean,
 )
 
-enum class EventKind { Hit, Rejected, Incoming, Heal, OtherDamage, KnockedByOthers }
+enum class EventKind { Hit, Team, Rejected, Incoming, Heal, OtherDamage, KnockedByOthers }
 
 data class EventLine(
     val timeSec: Double,
@@ -37,12 +39,14 @@ data class EventLine(
     val hpAfter: Double?,
     val amount: Double?,
     val code: String?,
+    val teammate: String? = null,
     val count: Int = 1,
     val key: String = "",
 )
 
 private const val SHOT_WINDOW_SEC = 0.05
-private val SHOT_KINDS = setOf(EventKind.Hit, EventKind.Incoming)
+private const val TEAMMATE = "Тиммейт"
+private val SHOT_KINDS = setOf(EventKind.Hit, EventKind.Team, EventKind.Incoming)
 
 fun Enemy.summary(): EnemySummary {
     val current = lives.lastOrNull()
@@ -56,15 +60,22 @@ fun Enemy.summary(): EnemySummary {
         killedBy = current?.killedBy,
         deaths = lives.count { it.condition == Condition.DEAD },
         dealt = lives.sumOf { it.dealtDamage },
+        team = lives.sumOf { it.teamDamage.values.sum() },
         others = lives.sumOf { it.othersDamage },
         healed = lives.sumOf { it.healed },
         invalid = lives.sumOf { life -> life.rejected.values.sum() },
+        seenByYou = seenByYou,
     )
 }
 
-fun Enemy.eventLines(): List<EventLine> {
+fun Enemy.eventLines(names: Map<Long, String> = emptyMap()): List<EventLine> {
     val outgoing = lives.flatMap { it.hits }.map { hit ->
-        hit.line(if (hit.outcome == Outcome.REJECTED) EventKind.Rejected else EventKind.Hit)
+        val teammate = hit.teammate
+        when {
+            teammate != null -> hit.line(EventKind.Team).copy(teammate = names[teammate] ?: TEAMMATE)
+            hit.outcome == Outcome.REJECTED -> hit.line(EventKind.Rejected)
+            else -> hit.line(EventKind.Hit)
+        }
     }.mergeShots()
     val received = incoming.map { it.line(EventKind.Incoming) }.mergeShots()
     val changes = lives.flatMap { it.hpChanges }.map { change ->
@@ -92,7 +103,7 @@ private fun List<EventLine>.mergeShots(): List<EventLine> {
     val merged = mutableListOf<EventLine>()
     for (line in this) {
         val shot = merged.lastOrNull()
-        if (shot != null && line.kind in SHOT_KINDS && shot.kind == line.kind && shot.weapon == line.weapon && line.timeSec - shot.timeSec <= SHOT_WINDOW_SEC) {
+        if (shot != null && line.kind in SHOT_KINDS && shot.kind == line.kind && shot.teammate == line.teammate && shot.weapon == line.weapon && line.timeSec - shot.timeSec <= SHOT_WINDOW_SEC) {
             merged[merged.lastIndex] = shot.copy(
                 outcome = maxOf(shot.outcome, line.outcome, compareBy { it.weight }),
                 area = shot.area.takeIf { it == line.area },
@@ -137,7 +148,7 @@ fun List<Enemy>.defaultSelection(): Int? = maxByOrNull { it.summary().dealt }?.n
 data class FightTotals(val dealt: Double, val knocks: Int, val kills: Int, val validHits: Int, val headshots: Int)
 
 fun Fight.totals(): FightTotals {
-    val hits = enemies.flatMap { enemy -> enemy.lives.flatMap { it.hits } }.filter { it.outcome != Outcome.REJECTED }
+    val hits = enemies.flatMap { enemy -> enemy.lives.flatMap { it.hits } }.filter { it.outcome != Outcome.REJECTED && it.teammate == null }
     return FightTotals(
         dealt = hits.sumOf { it.damage },
         knocks = hits.count { it.outcome == Outcome.KNOCK },
@@ -145,4 +156,19 @@ fun Fight.totals(): FightTotals {
         validHits = hits.size,
         headshots = hits.count { it.event.row.area == HitArea.HEAD },
     )
+}
+
+data class Contribution(val actor: Actor, val damage: Double, val knocks: Int, val kills: Int)
+
+fun Enemy.contributions(): List<Contribution> {
+    val hits = lives.flatMap { it.hits }.filter { it.outcome != Outcome.REJECTED }
+    if (hits.none { it.teammate != null }) return emptyList()
+    return hits.groupBy { it.teammate }.map { (teammate, own) ->
+        Contribution(
+            actor = teammate?.let(Actor::Teammate) ?: Actor.You,
+            damage = own.sumOf { it.damage },
+            knocks = own.count { it.outcome == Outcome.KNOCK },
+            kills = own.count { it.outcome == Outcome.KILL || it.outcome == Outcome.FINISH },
+        )
+    }.sortedByDescending { it.damage }
 }

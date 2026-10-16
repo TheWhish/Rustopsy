@@ -15,34 +15,63 @@ object FightAnalyzer {
     const val CRAWL_MIN_HP = 7.0
     const val CRAWL_MAX_HP = 11.0
 
+    const val TEAM_CLOCK_TOLERANCE_SEC = 0.3
+
     private const val PLAYER = "player"
     private const val HP_EPSILON = 0.05
     private val YOU = Party.parse("you")
 
     private class Contact(val enemy: Party, val event: CombatEvent) {
-        val outgoing: Boolean = event.row.attacker?.isYou == true
+        val own: Boolean get() = event.teammate == null
+        val outgoing: Boolean = !own || event.row.attacker?.isYou == true
         val target: Party get() = if (outgoing) enemy else YOU
     }
 
-    private class Engagement(val contact: Contact, val hit: Hit, val startsLife: Boolean) {
+    private class Engagement(val contact: Contact, val hit: Hit, val startsLife: Boolean, val order: Int) {
         val timeSec: Double get() = hit.event.timeSec
         val youDie: Boolean get() = !contact.outgoing && hit.condition == Condition.DEAD
     }
 
-    fun analyze(events: List<CombatEvent>): List<Fight> {
-        val contacts = events.mapNotNull { event -> enemyOf(event.row)?.let { Contact(it, event) } }
-        return fights(classify(contacts)).map(::fight)
+    fun analyze(events: List<CombatEvent>, teammates: Set<Long> = emptySet()): List<Fight> {
+        val contacts = events.mapNotNull { event -> enemyOf(event)?.takeUnless { it.id in teammates }?.let { Contact(it, event) } }
+        val (own, shared) = classify(contacts.chained()).partition { it.contact.own }
+        return attach(fights(own), shared).map(::fight)
     }
 
-    private fun enemyOf(row: CombatRow): Party? {
-        val attacker = row.attacker ?: return null
-        val target = row.target ?: return null
+    private fun enemyOf(event: CombatEvent): Party? {
+        val attacker = event.row.attacker ?: return null
+        val target = event.row.target ?: return null
         return when {
-            attacker.isYou && target.name == PLAYER && target.id != null -> target
-            target.isYou && attacker.name == PLAYER && attacker.id != null -> attacker
+            event.teammate != null -> target.takeIf { it.isPlayer }
+            attacker.isYou && target.isPlayer -> target
+            target.isYou && attacker.isPlayer -> attacker
             else -> null
         }
     }
+
+    private val Party.isPlayer: Boolean get() = name == PLAYER && id != null
+
+    private fun List<Contact>.chained(): List<Contact> {
+        if (all { it.own }) return this
+        val result = toMutableList()
+        indices.groupBy { this[it].target }.values.forEach { positions ->
+            val ordered = positions.mapTo(ArrayList()) { this[it] }
+            for (i in 1 until ordered.size) {
+                var j = i
+                while (j > 0 && ordered[j].precedes(ordered[j - 1])) {
+                    ordered[j] = ordered[j - 1].also { ordered[j - 1] = ordered[j] }
+                    j--
+                }
+            }
+            positions.forEachIndexed { k, position -> result[position] = ordered[k] }
+        }
+        return result
+    }
+
+    private fun Contact.precedes(earlier: Contact): Boolean =
+        event.teammate != earlier.event.teammate && isUsable() && earlier.isUsable() &&
+            abs(event.timeSec - earlier.event.timeSec) <= TEAM_CLOCK_TOLERANCE_SEC &&
+            event.row.oldHp!! > earlier.event.row.oldHp!! + HP_EPSILON
 
     private fun classify(contacts: List<Contact>): List<Engagement> {
         val reference = referenceDamage(contacts)
@@ -57,7 +86,7 @@ object FightAnalyzer {
         val states = HashMap<Party, Condition>()
         val targetReference = HashMap<Pair<Party, String>, Double>()
         return contacts.mapIndexed { i, contact ->
-            if (!contact.isUsable()) return@mapIndexed Engagement(contact, Hit(contact.event, Outcome.REJECTED, 0.0), startsLife = false)
+            if (!contact.isUsable()) return@mapIndexed Engagement(contact, Hit(contact.event, Outcome.REJECTED, 0.0), startsLife = false, order = i)
             val row = contact.event.row
             val old = row.oldHp!!
             val new = row.newHp!!
@@ -73,7 +102,7 @@ object FightAnalyzer {
             if (contact.outgoing && outcome == Outcome.HIT && row.isReferenceSample()) {
                 targetReference.merge(contact.target to row.weapon, old - new, ::minOf)
             }
-            Engagement(contact, hit, startsLife)
+            Engagement(contact, hit, startsLife, i)
         }
     }
 
@@ -159,15 +188,30 @@ object FightAnalyzer {
         return reset
     }
 
+    private fun attach(fights: List<List<Engagement>>, shared: List<Engagement>): List<List<Engagement>> {
+        if (shared.isEmpty()) return fights
+        val joined = fights.map { it.toMutableList() }
+        for (engagement in shared) {
+            val index = fights.indices
+                .filter { engagement.timeSec in fights[it].first().timeSec - PAUSE_SEC..fights[it].last().timeSec + FIGHT_GAP_SEC }
+                .minByOrNull { distance(fights[it], engagement.timeSec) } ?: continue
+            joined[index] += engagement
+        }
+        return joined.map { fight -> fight.sortedBy { it.order } }
+    }
+
+    private fun distance(fight: List<Engagement>, timeSec: Double): Double =
+        maxOf(fight.first().timeSec - timeSec, timeSec - fight.last().timeSec, 0.0)
+
     private fun fight(engagements: List<Engagement>): Fight {
         val incoming = engagements.filterNot { it.contact.outgoing }.map { it.hit }
         return Fight(
-            startSec = engagements.first().timeSec,
-            endSec = engagements.last().timeSec,
+            startSec = engagements.filter { it.contact.own }.minOf { it.timeSec },
+            endSec = engagements.maxOf { it.timeSec },
             enemies = engagements.groupBy { it.contact.enemy }.entries
                 .mapIndexed { i, (party, list) -> enemy(i + 1, party, list) },
             damageTaken = incoming.sumOf { it.damage },
-            you = yourCondition(engagements),
+            you = yourCondition(engagements.filter { it.contact.own }),
         )
     }
 
@@ -189,7 +233,8 @@ object FightAnalyzer {
             lives = lives(engagements.filter { it.contact.outgoing }),
             incoming = incoming,
             weapons = incoming.map { weaponName(it.event.row.weapon) }.filter { it.isNotEmpty() }.distinct(),
-            medianDistanceM = median(engagements.mapNotNull { it.hit.event.row.distanceM }),
+            medianDistanceM = median(engagements.filter { it.contact.own }.mapNotNull { it.hit.event.row.distanceM }),
+            seenByYou = engagements.any { it.contact.own },
         )
     }
 
@@ -207,6 +252,7 @@ object FightAnalyzer {
         var knockedBy: Actor? = null
         var killedBy: Actor? = null
         var dealt = 0.0
+        val team = LinkedHashMap<Long, Double>()
         var others = 0.0
         var healed = 0.0
         val changes = mutableListOf<HpChange>()
@@ -216,7 +262,7 @@ object FightAnalyzer {
             val timeSec = hit.event.timeSec
             val previous = hp
             if (condition == Condition.ALIVE && previous != null && (hit.outcome == Outcome.FINISH || hit.outcome == Outcome.DOWNED)) {
-                knockedBy = Actor.OTHERS
+                knockedBy = Actor.Others
                 others += previous
                 changes += HpChange(timeSec, -previous, knocked = true)
             } else if (condition == Condition.ALIVE && previous != null) {
@@ -226,12 +272,14 @@ object FightAnalyzer {
                     if (delta > 0) healed += delta else others -= delta
                 }
             }
-            dealt += hit.damage
+            val teammate = hit.teammate
+            if (teammate == null) dealt += hit.damage else team[teammate] = (team[teammate] ?: 0.0) + hit.damage
             hp = hit.hpAfter
             condition = after
+            val actor = teammate?.let(Actor::Teammate) ?: Actor.You
             when (hit.outcome) {
-                Outcome.KNOCK -> knockedBy = Actor.YOU
-                Outcome.KILL, Outcome.FINISH -> killedBy = Actor.YOU
+                Outcome.KNOCK -> knockedBy = actor
+                Outcome.KILL, Outcome.FINISH -> killedBy = actor
                 else -> Unit
             }
         }
@@ -239,6 +287,7 @@ object FightAnalyzer {
         return Life(
             hits = hits,
             dealtDamage = dealt,
+            teamDamage = team,
             othersDamage = others,
             healed = healed,
             hp = hp,

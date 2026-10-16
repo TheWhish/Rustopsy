@@ -4,6 +4,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import xyz.thewhish.rustopsy.core.sync.LiveMessage
+import xyz.thewhish.rustopsy.core.sync.STEAM_ID_RANGE
 import xyz.thewhish.rustopsy.core.sync.TeamHit
 import xyz.thewhish.rustopsy.core.sync.TeamInfo
 import xyz.thewhish.rustopsy.core.sync.TeamInvite
@@ -127,8 +128,7 @@ class TeamHub(private val store: TeamStore, private val clock: () -> Long = Syst
             listOfNotNull(oldHp, newHp).all { it in 0.0..MAX_HP } &&
             distanceM.let { it == null || it in 0.0..MAX_DISTANCE_M }
 
-    companion object {
-        val STEAM_ID_RANGE = 76561197960265728L..76561202255233023L
+    private companion object {
         private const val RECENT_MS = 15 * 60_000L
         private const val MAX_RECENT_HITS = 2_000
         private const val MAX_HITS_PER_MESSAGE = 200

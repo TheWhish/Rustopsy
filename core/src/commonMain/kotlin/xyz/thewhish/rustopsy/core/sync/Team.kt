@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 
 const val TEAM_MAX_MEMBERS = 8
 
+val STEAM_ID_RANGE = 76561197960265728L..76561202255233023L
+
 @Serializable
 data class TeamMember(val steamId: Long, val name: String, val avatarUrl: String?, val online: Boolean)
 

@@ -29,7 +29,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,6 +53,7 @@ import xyz.thewhish.rustopsy.core.fight.FightAnalyzer
 import xyz.thewhish.rustopsy.core.session.HiddenWindow
 import xyz.thewhish.rustopsy.session.SessionState
 import xyz.thewhish.rustopsy.team.TeamAccess
+import xyz.thewhish.rustopsy.team.TeamStatus
 import xyz.thewhish.rustopsy.ui.Format
 import xyz.thewhish.rustopsy.ui.components.Panel
 import xyz.thewhish.rustopsy.ui.components.PanelHeader
@@ -68,8 +71,15 @@ private val TOP_BAR_HEIGHT = 56.dp
 
 @Composable
 fun RadarScreen(session: SessionState, logFound: Boolean, nowSec: Double, utcOffsetSec: Int, team: TeamAccess, account: AccountAccess) {
-    val fights = remember(session.events) { FightAnalyzer.analyze(session.events).asReversed() }
     val teamStatus by team.status.collectAsState()
+    val teamEvents by team.events.collectAsState()
+    val members = (teamStatus as? TeamStatus.Ready)?.state?.team?.members.orEmpty()
+    val teammates = remember(members) { members.mapTo(HashSet()) { it.steamId } }
+    val names = remember(members) { members.associate { it.steamId to it.name } }
+    val fights = remember(session.events, teamEvents, teammates) {
+        val events = if (teamEvents.isEmpty()) session.events else (session.events + teamEvents).sortedBy { it.timeSec }
+        FightAnalyzer.analyze(events, teammates).asReversed()
+    }
     var teamOpen by remember { mutableStateOf(false) }
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(AshSpace.m)) {
@@ -77,7 +87,7 @@ fun RadarScreen(session: SessionState, logFound: Boolean, nowSec: Double, utcOff
             if (fights.isEmpty()) {
                 EmptyFightView()
             } else {
-                FightView(fights, session, nowSec, utcOffsetSec)
+                FightView(fights, session, nowSec, utcOffsetSec, names)
             }
         }
         TeamOverlay(teamOpen, { teamOpen = false }, team, account, top = TOP_BAR_HEIGHT + AshSpace.s)
@@ -85,7 +95,7 @@ fun RadarScreen(session: SessionState, logFound: Boolean, nowSec: Double, utcOff
 }
 
 @Composable
-private fun FightView(fights: List<Fight>, session: SessionState, nowSec: Double, utcOffsetSec: Int) {
+private fun FightView(fights: List<Fight>, session: SessionState, nowSec: Double, utcOffsetSec: Int, names: Map<Long, String>) {
     var selectedFight by rememberSaveable { mutableStateOf(0) }
     val fightIndex = selectedFight.coerceIn(0, minOf(fights.size, MAX_FIGHT_TABS) - 1)
     val fight = fights[fightIndex]
@@ -114,22 +124,23 @@ private fun FightView(fights: List<Fight>, session: SessionState, nowSec: Double
     ) { startSec ->
         val shown = fights.firstOrNull { it.startSec == startSec } ?: fight
         val live = shown === fights.first() && nowSec - shown.endSec < FightAnalyzer.FIGHT_GAP_SEC
-        FightBody(shown, live, session, nowSec)
+        FightBody(shown, live, session, nowSec, names)
     }
 }
 
 @Composable
-private fun FightBody(fight: Fight, current: Boolean, session: SessionState, nowSec: Double) {
+private fun FightBody(fight: Fight, current: Boolean, session: SessionState, nowSec: Double, names: Map<Long, String>) {
     var selectedEnemy by remember { mutableStateOf(fight.enemies.defaultSelection()) }
     val enemy = fight.enemies.firstOrNull { it.number == selectedEnemy } ?: fight.enemies.first()
 
     Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(AshSpace.m)) {
         Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(AshSpace.m)) {
-            EnemiesPanel(fight.enemies, enemy.number, { selectedEnemy = it })
-            EventsPanel(enemy, if (current) nowSec else fight.endSec, Modifier.weight(1f))
+            EnemiesPanel(fight.enemies, enemy.number, names, { selectedEnemy = it })
+            EventsPanel(enemy, if (current) nowSec else fight.endSec, names, Modifier.weight(1f))
         }
-        Column(Modifier.width(352.dp).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(AshSpace.m)) {
+        Column(Modifier.width(352.dp).fillMaxHeight().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(AshSpace.m)) {
             ZonesPanel(enemy)
+            ContributionPanel(enemy, names)
             YouPanel(fight, session.gaps.any { it.overlaps(fight.startSec, fight.endSec) })
         }
     }

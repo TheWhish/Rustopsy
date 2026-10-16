@@ -1,6 +1,7 @@
 package xyz.thewhish.rustopsy.team
 
 import kotlinx.coroutines.flow.StateFlow
+import xyz.thewhish.rustopsy.core.session.CombatEvent
 import xyz.thewhish.rustopsy.core.sync.FriendsResponse
 import xyz.thewhish.rustopsy.core.sync.TeamState
 
@@ -18,6 +19,8 @@ sealed interface FriendsLoad {
 
 class TeamAccess(
     val status: StateFlow<TeamStatus>,
+    val events: StateFlow<List<CombatEvent>>,
+    val clockOffsetMs: StateFlow<Long?>,
     val friends: suspend () -> FriendsLoad,
     val invite: suspend (target: String) -> Boolean,
     val accept: suspend (teamId: Long) -> Unit,

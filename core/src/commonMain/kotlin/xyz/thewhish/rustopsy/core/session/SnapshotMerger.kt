@@ -4,7 +4,7 @@ import xyz.thewhish.rustopsy.core.log.CombatRow
 import xyz.thewhish.rustopsy.core.log.Snapshot
 import kotlin.math.abs
 
-data class CombatEvent(val timeSec: Double, val row: CombatRow)
+data class CombatEvent(val timeSec: Double, val row: CombatRow, val teammate: Long? = null)
 
 data class HiddenWindow(val count: Int, val untilSec: Double, val windowSec: Int)
 

@@ -24,7 +24,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Msi)
             packageName = "Rustopsy"
-            packageVersion = "1.0.0"
+            packageVersion = "0.1.0"
             modules("java.instrument", "jdk.unsupported", "java.net.http", "jdk.httpserver")
 
             windows {

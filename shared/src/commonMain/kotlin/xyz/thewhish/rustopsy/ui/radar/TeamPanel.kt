@@ -67,6 +67,7 @@ import xyz.thewhish.rustopsy.core.sync.TeamMember
 import xyz.thewhish.rustopsy.team.FriendsLoad
 import xyz.thewhish.rustopsy.team.TeamAccess
 import xyz.thewhish.rustopsy.team.TeamStatus
+import xyz.thewhish.rustopsy.ui.Format
 import xyz.thewhish.rustopsy.ui.components.ActionRunner
 import xyz.thewhish.rustopsy.ui.components.Avatar
 import xyz.thewhish.rustopsy.ui.components.rememberActionRunner
@@ -76,11 +77,13 @@ import xyz.thewhish.rustopsy.ui.theme.AshMotion
 import xyz.thewhish.rustopsy.ui.theme.AshShapes
 import xyz.thewhish.rustopsy.ui.theme.AshSpace
 import xyz.thewhish.rustopsy.ui.theme.AshText
+import kotlin.math.abs
 
 private val PANEL_WIDTH = 400.dp
 private val PANEL_MAX_HEIGHT = 700.dp
 private val BAR_AVATAR = 24.dp
 private const val BAR_AVATARS = 4
+private const val CLOCK_WARNING_MS = 2_000L
 
 @Composable
 fun TeamButton(status: TeamStatus, open: Boolean, onClick: () -> Unit) {
@@ -108,6 +111,7 @@ fun TeamButton(status: TeamStatus, open: Boolean, onClick: () -> Unit) {
                 AshText(invites.toString(), Ash.type.caption, color = AshColors.onEmber)
             }
             ready != null && team != null && !ready.linked -> Box(Modifier.size(6.dp).clip(CircleShape).background(AshColors.warn))
+            ready != null && team != null && team.members.count { it.online } > 1 -> Box(Modifier.size(6.dp).clip(CircleShape).background(AshColors.ok))
         }
     }
 }
@@ -153,7 +157,7 @@ fun BoxScope.TeamOverlay(open: Boolean, onClose: () -> Unit, team: TeamAccess, a
 }
 
 @Composable
-private fun ColumnScope.TeamPanelContent(team: TeamAccess, account: AccountAccess) {
+private fun TeamPanelContent(team: TeamAccess, account: AccountAccess) {
     val status by team.status.collectAsState()
     val accountStatus by account.status.collectAsState()
     val runner = rememberActionRunner()
@@ -185,6 +189,17 @@ private fun ReadyContent(status: TeamStatus.Ready, self: Long?, team: TeamAccess
         ) {
             AshText(problem, Ash.type.secondary, Modifier.weight(1f), AshColors.bad, maxLines = 2)
             SmallButton("Скрыть", onClick = team.dismissProblem)
+        }
+    }
+    val clockOffsetMs by team.clockOffsetMs.collectAsState()
+    clockOffsetMs?.takeIf { abs(it) > CLOCK_WARNING_MS }?.let { offset ->
+        Box(Modifier.fillMaxWidth().clip(AshShapes.control).background(AshColors.warnSoft).padding(horizontal = AshSpace.m, vertical = AshSpace.s)) {
+            AshText(
+                "Часы ПК ${if (offset > 0) "отстают" else "спешат"} на ${Format.duration(abs(offset) / 1_000.0)}. Rustopsy учтёт разницу, но лучше синхронизировать время Windows",
+                Ash.type.secondary,
+                color = AshColors.warn,
+                maxLines = 2,
+            )
         }
     }
     if (status.state.invites.isNotEmpty()) {

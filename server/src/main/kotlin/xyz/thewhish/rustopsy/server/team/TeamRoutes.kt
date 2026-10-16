@@ -26,6 +26,7 @@ import xyz.thewhish.rustopsy.core.sync.InviteAnswer
 import xyz.thewhish.rustopsy.core.sync.InviteRequest
 import xyz.thewhish.rustopsy.core.sync.KickRequest
 import xyz.thewhish.rustopsy.core.sync.LiveMessage
+import xyz.thewhish.rustopsy.core.sync.STEAM_ID_RANGE
 import xyz.thewhish.rustopsy.core.sync.TeamErrors
 import xyz.thewhish.rustopsy.server.auth.AuthStore
 import xyz.thewhish.rustopsy.server.auth.FriendList
@@ -62,7 +63,7 @@ fun Route.teamRoutes(teams: TeamStore, hub: TeamHub, auth: AuthStore, steam: Ste
                 fail(TeamErrors.STEAM_UNAVAILABLE)
                 return@post
             }
-            if (inviteeId == null || inviteeId !in TeamHub.STEAM_ID_RANGE) {
+            if (inviteeId == null || inviteeId !in STEAM_ID_RANGE) {
                 fail(TeamErrors.PLAYER_NOT_FOUND)
                 return@post
             }

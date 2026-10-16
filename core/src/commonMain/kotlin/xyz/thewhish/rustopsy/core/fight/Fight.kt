@@ -8,9 +8,15 @@ enum class Outcome { HIT, KNOCK, DOWNED, KILL, FINISH, REJECTED }
 
 enum class Condition { ALIVE, KNOCKED, DEAD }
 
-enum class Actor { YOU, OTHERS }
+sealed interface Actor {
+    data object You : Actor
+    data object Others : Actor
+    data class Teammate(val steamId: Long) : Actor
+}
 
 data class Hit(val event: CombatEvent, val outcome: Outcome, val damage: Double) {
+    val teammate: Long? get() = event.teammate
+
     val condition: Condition?
         get() = when (outcome) {
             Outcome.HIT -> Condition.ALIVE
@@ -42,11 +48,13 @@ data class Enemy(
     val incoming: List<Hit>,
     val weapons: List<String>,
     val medianDistanceM: Double?,
+    val seenByYou: Boolean,
 )
 
 data class Life(
     val hits: List<Hit>,
     val dealtDamage: Double,
+    val teamDamage: Map<Long, Double>,
     val othersDamage: Double,
     val healed: Double,
     val hp: Double?,

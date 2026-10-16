@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import xyz.thewhish.rustopsy.capture.Capture
 import xyz.thewhish.rustopsy.core.log.PrintTime
+import xyz.thewhish.rustopsy.core.session.CombatEvent
 import xyz.thewhish.rustopsy.core.session.SnapshotMerger
 import xyz.thewhish.rustopsy.core.session.hiddenWindow
 import java.time.LocalDateTime
@@ -16,12 +17,15 @@ class CombatSession(private val zone: ZoneId = ZoneId.systemDefault()) {
     private val mutableState = MutableStateFlow(SessionState())
     val state: StateFlow<SessionState> = mutableState.asStateFlow()
 
-    fun accept(capture: Capture) {
+    fun accept(capture: Capture): List<CombatEvent> {
         val captured = capture.capturedAt.epochSec()
         val printed = capture.snapshot.printedAt?.epochSec() ?: captured
+        var added = emptyList<CombatEvent>()
         mutableState.update { current ->
+            added = emptyList()
             if (current.printedAtSec != null && printed < current.printedAtSec) return@update current.copy(capturedAtSec = captured)
             val result = SnapshotMerger.merge(current.events, capture.snapshot, printed)
+            added = result.added
             SessionState(
                 events = result.events,
                 hidden = capture.snapshot.hiddenWindow(printed),
@@ -30,6 +34,7 @@ class CombatSession(private val zone: ZoneId = ZoneId.systemDefault()) {
                 gaps = if (result.continuous) current.gaps else current.gaps + gap(current, capture, printed),
             )
         }
+        return added
     }
 
     private fun gap(current: SessionState, capture: Capture, printedSec: Double) = DataGap(

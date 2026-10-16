@@ -77,8 +77,8 @@ class TeamFightTest {
         assertEquals(Outcome.KNOCK, hitAt("12:57:06.881").outcome)
         assertEquals(Outcome.FINISH, hitAt("12:57:25.050").outcome)
         assertEquals(Condition.DEAD, life.condition)
-        assertEquals(Actor.YOU, life.knockedBy)
-        assertEquals(Actor.YOU, life.killedBy)
+        assertEquals(Actor.You, life.knockedBy)
+        assertEquals(Actor.You, life.killedBy)
         assertEquals(96.1, life.dealtDamage, 1e-9)
     }
 
