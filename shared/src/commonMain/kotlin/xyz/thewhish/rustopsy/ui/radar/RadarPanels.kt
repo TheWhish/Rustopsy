@@ -158,14 +158,7 @@ private fun DeathsChip(deaths: Int) {
 @Composable
 private fun HpCell(summary: EnemySummary, names: Map<Long, String>, modifier: Modifier) {
     val hp = summary.hp
-    val color = when {
-        summary.condition == Condition.DEAD -> AshColors.text3
-        summary.condition == Condition.KNOCKED -> AshColors.ok
-        hp == null -> AshColors.text3
-        hp <= 25 -> AshColors.ok
-        hp <= 60 -> AshColors.warn
-        else -> AshColors.text1
-    }
+    val color = hpColor(summary)
     Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AshSpace.l)) {
         Column(Modifier.widthIn(min = 108.dp)) {
             Row(verticalAlignment = Alignment.Bottom) {
@@ -183,6 +176,18 @@ private fun HpCell(summary: EnemySummary, names: Map<Long, String>, modifier: Mo
         }
         val barHp = if (summary.condition == Condition.DEAD) 0.0 else hp ?: 0.0
         HpBar((barHp / MAX_HP).toFloat(), color, Modifier.weight(1f))
+    }
+}
+
+internal fun hpColor(summary: EnemySummary): Color {
+    val hp = summary.hp
+    return when {
+        summary.condition == Condition.DEAD -> AshColors.text3
+        summary.condition == Condition.KNOCKED -> AshColors.ok
+        hp == null -> AshColors.text3
+        hp <= 25 -> AshColors.ok
+        hp <= 60 -> AshColors.warn
+        else -> AshColors.text1
     }
 }
 

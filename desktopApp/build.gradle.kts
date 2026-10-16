@@ -19,7 +19,7 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "xyz.thewhish.rustopsy.MainKt"
-        jvmArgs += listOf("-Xmx256m")
+        jvmArgs += listOf("-Xmx256m", "-Drustopsy.version=0.1.0-alpha")
 
         nativeDistributions {
             targetFormats(TargetFormat.Msi)

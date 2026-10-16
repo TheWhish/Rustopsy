@@ -20,7 +20,7 @@ fun CombatEvent.toTeamHit(clockOffsetMs: Long): TeamHit? {
         weapon = row.weapon,
         ammo = row.ammo,
         area = row.area?.name?.lowercase().orEmpty(),
-        distanceM = row.distanceM,
+        distanceM = null,
         oldHp = row.oldHp,
         newHp = row.newHp,
         info = row.info,

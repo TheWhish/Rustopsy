@@ -22,7 +22,7 @@ jobs:
       - name: Safety guard
         shell: bash
         run: |
-          forbidden='OpenProcess|allProcesses|ReadProcessMemory|WriteProcessMemory|CreateRemoteThread|SendInput|keybd_event|mouse_event|SetWindowsHookEx|WH_KEYBOARD_LL|WH_MOUSE_LL|java\.awt\.Robot|jnativehook'
+          forbidden='OpenProcess|allProcesses|ReadProcessMemory|WriteProcessMemory|CreateRemoteThread|SendInput|keybd_event|mouse_event|SetWindowsHookEx|WH_KEYBOARD_LL|WH_MOUSE_LL|java\.awt\.Robot|jnativehook|SetWindowDisplayAffinity|FindWindow|EnumWindows|SetParent|GetForegroundWindow'
           if git grep -nIE "$forbidden" -- '*.kt' '*.kts' '*.toml'; then
             echo "Forbidden API found, see docs/SAFETY.md"
             exit 1
@@ -38,7 +38,7 @@ jobs:
       - name: Server jar
         run: ./gradlew :server:buildFatJar -q
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: rustopsy-server
           path: server/build/libs/rustopsy-server.jar
@@ -47,7 +47,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         run: ./gradlew :desktopApp:packageMsi -q
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: Rustopsy-msi
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: deploy-server
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: rustopsy-server
 
@@ -75,5 +75,6 @@ jobs:
           install -d -m 700 ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -lf ~/.ssh/id_ed25519
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           ssh -o BatchMode=yes deploy@thewhish.xyz < rustopsy-server.jar

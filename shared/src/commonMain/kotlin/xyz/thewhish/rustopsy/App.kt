@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import xyz.thewhish.rustopsy.session.SessionState
+import xyz.thewhish.rustopsy.session.TeamFights
 import xyz.thewhish.rustopsy.ui.radar.RadarScreen
 import xyz.thewhish.rustopsy.ui.settings.SettingsContext
 import xyz.thewhish.rustopsy.ui.settings.SettingsScreen
@@ -71,14 +72,14 @@ import kotlin.time.Duration.Companion.milliseconds
 val BASE_WIDTH = 1440.dp
 val BASE_HEIGHT = 810.dp
 
-private const val TICK_WAITING_MS = 100L
-private const val TICK_IDLE_MS = 1_000L
+private const val TICK_MS = 1_000L
 
 enum class Screen(val title: String) { Radar("Радар"), History("История"), Statistics("Статистика"), Settings("Настройки") }
 
 @Composable
 fun App(
     session: StateFlow<SessionState>,
+    fights: StateFlow<TeamFights>,
     utcOffsetSec: Int,
     settings: SettingsContext,
     team: TeamAccess,
@@ -87,13 +88,8 @@ fun App(
     AshTheme {
         ScaledCanvas(avatars) {
             val state by session.collectAsState()
-            val nowSec by produceState(epochNow(), state.hidden) {
-                while (true) {
-                    value = epochNow()
-                    val waiting = state.hidden?.let { value < it.untilSec } == true
-                    delay((if (waiting) TICK_WAITING_MS else TICK_IDLE_MS).milliseconds)
-                }
-            }
+            val teamFights by fights.collectAsState()
+            val nowSec = rememberNowSec()
             var screen by rememberSaveable { mutableStateOf(Screen.Radar) }
             Row(Modifier.fillMaxSize().background(AshColors.ash0)) {
                 Rail(screen) { screen = it }
@@ -107,7 +103,7 @@ fun App(
                     },
                 ) { target ->
                     when (target) {
-                        Screen.Radar -> RadarScreen(state, settings.gameLog != null, nowSec, utcOffsetSec, team, settings.account)
+                        Screen.Radar -> RadarScreen(state, teamFights, settings.gameLog != null, nowSec, utcOffsetSec, team, settings.account)
                         Screen.Settings -> SettingsScreen(settings)
                         else -> ComingLater(target)
                     }
@@ -115,6 +111,17 @@ fun App(
             }
         }
     }
+}
+
+@Composable
+fun rememberNowSec(): Double {
+    val nowSec by produceState(epochNow()) {
+        while (true) {
+            value = epochNow()
+            delay(TICK_MS.milliseconds)
+        }
+    }
+    return nowSec
 }
 
 private fun epochNow(): Double = Clock.System.now().let { it.epochSeconds + it.nanosecondsOfSecond / 1e9 }

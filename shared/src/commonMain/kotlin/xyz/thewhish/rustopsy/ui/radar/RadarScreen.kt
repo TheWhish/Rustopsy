@@ -3,18 +3,11 @@ package xyz.thewhish.rustopsy.ui.radar
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.togetherWith
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -42,9 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import xyz.thewhish.rustopsy.account.AccountAccess
@@ -52,8 +41,8 @@ import xyz.thewhish.rustopsy.core.fight.Fight
 import xyz.thewhish.rustopsy.core.fight.FightAnalyzer
 import xyz.thewhish.rustopsy.core.session.HiddenWindow
 import xyz.thewhish.rustopsy.session.SessionState
+import xyz.thewhish.rustopsy.session.TeamFights
 import xyz.thewhish.rustopsy.team.TeamAccess
-import xyz.thewhish.rustopsy.team.TeamStatus
 import xyz.thewhish.rustopsy.ui.Format
 import xyz.thewhish.rustopsy.ui.components.Panel
 import xyz.thewhish.rustopsy.ui.components.PanelHeader
@@ -64,26 +53,18 @@ import xyz.thewhish.rustopsy.ui.theme.AshMotion
 import xyz.thewhish.rustopsy.ui.theme.AshShapes
 import xyz.thewhish.rustopsy.ui.theme.AshSpace
 import xyz.thewhish.rustopsy.ui.theme.AshText
-import kotlin.math.ceil
 
 private const val MAX_FIGHT_TABS = 4
 private val TOP_BAR_HEIGHT = 56.dp
 
 @Composable
-fun RadarScreen(session: SessionState, logFound: Boolean, nowSec: Double, utcOffsetSec: Int, team: TeamAccess, account: AccountAccess) {
+fun RadarScreen(session: SessionState, teamFights: TeamFights, logFound: Boolean, nowSec: Double, utcOffsetSec: Int, team: TeamAccess, account: AccountAccess) {
     val teamStatus by team.status.collectAsState()
-    val teamEvents by team.events.collectAsState()
-    val members = (teamStatus as? TeamStatus.Ready)?.state?.team?.members.orEmpty()
-    val teammates = remember(members) { members.mapTo(HashSet()) { it.steamId } }
-    val names = remember(members) { members.associate { it.steamId to it.name } }
-    val fights = remember(session.events, teamEvents, teammates) {
-        val events = if (teamEvents.isEmpty()) session.events else (session.events + teamEvents).sortedBy { it.timeSec }
-        FightAnalyzer.analyze(events, teammates).asReversed()
-    }
+    val (fights, names) = teamFights
     var teamOpen by remember { mutableStateOf(false) }
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(AshSpace.m)) {
-            TopBar(logFound, session.hidden, nowSec) { TeamButton(teamStatus, teamOpen) { teamOpen = !teamOpen } }
+            TopBar(logFound, session.hidden) { TeamButton(teamStatus, teamOpen) { teamOpen = !teamOpen } }
             if (fights.isEmpty()) {
                 EmptyFightView()
             } else {
@@ -147,8 +128,7 @@ private fun FightBody(fight: Fight, current: Boolean, session: SessionState, now
 }
 
 @Composable
-private fun TopBar(logFound: Boolean, hidden: HiddenWindow?, nowSec: Double, trailing: @Composable () -> Unit) {
-    val remaining = hidden?.let { it.untilSec - nowSec }
+private fun TopBar(logFound: Boolean, hidden: HiddenWindow?, trailing: @Composable () -> Unit) {
     Box(Modifier.fillMaxWidth().height(TOP_BAR_HEIGHT).clip(AshShapes.panel).background(AshColors.ash1)) {
         Row(
             Modifier.fillMaxSize().padding(start = AshSpace.xl, end = 10.dp),
@@ -166,63 +146,22 @@ private fun TopBar(logFound: Boolean, hidden: HiddenWindow?, nowSec: Double, tra
                 enter = expandHorizontally(tween(AshMotion.MEDIUM, easing = AshMotion.standard)) + fadeIn(tween(AshMotion.MEDIUM)),
                 exit = shrinkHorizontally(tween(AshMotion.SHORT, easing = AshMotion.exit)) + fadeOut(tween(AshMotion.SHORT)),
             ) {
-                if (hidden != null && remaining != null) WaitChip(hidden.count, remaining)
+                if (hidden != null) HiddenChip(hidden.count)
             }
             trailing()
         }
-        if (hidden != null && remaining != null) {
-            AnimatedVisibility(
-                visible = remaining > 0,
-                modifier = Modifier.align(Alignment.BottomStart),
-                exit = fadeOut(tween(AshMotion.MEDIUM)),
-            ) {
-                Fuse((remaining / hidden.windowSec).toFloat())
-            }
-        }
     }
 }
 
 @Composable
-private fun WaitChip(count: Int, remainingSec: Double) {
-    val ready = remainingSec <= 0
+private fun HiddenChip(count: Int) {
     Row(
-        Modifier.height(36.dp).clip(AshShapes.control).background(AshColors.ash2).padding(start = 5.dp, end = 14.dp),
+        Modifier.height(36.dp).clip(AshShapes.control).background(AshColors.ash2).padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(AshSpace.s),
     ) {
-        Box(
-            Modifier.widthIn(min = 42.dp).height(26.dp).clip(AshShapes.chip)
-                .background(if (ready) AshColors.okSoft else AshColors.warnSoft)
-                .padding(horizontal = 6.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            AshText(
-                if (ready) "Готово" else Format.seconds(ceil(remainingSec).toLong()),
-                Ash.type.bodyStrong,
-                color = if (ready) AshColors.ok else AshColors.warn,
-            )
-        }
-        AshText(
-            if (ready) "Вызови combatlog, чтобы получить всё" else "Сервер покажет ещё ${Format.events(count)}",
-            Ash.type.body,
-            color = AshColors.text2,
-        )
-    }
-}
-
-@Composable
-private fun Fuse(fraction: Float) {
-    val width by animateFloatAsState(fraction.coerceIn(0f, 1f), tween(100, easing = LinearEasing))
-    val smoulder = rememberInfiniteTransition()
-    val halo by smoulder.animateFloat(0f, 1f, infiniteRepeatable(tween(AshMotion.SMOULDER), RepeatMode.Reverse))
-    Canvas(Modifier.fillMaxWidth().height(6.dp)) {
-        val line = 3.dp.toPx()
-        val x = size.width * width
-        val top = size.height - line
-        drawRoundRect(AshColors.warn, Offset(0f, top), Size(x, line), CornerRadius(2.dp.toPx()))
-        val tip = Offset(x, top + line / 2)
-        drawCircle(AshColors.ember.copy(alpha = 0.14f - 0.06f * halo), 3.dp.toPx() + (3 + halo).dp.toPx(), tip)
-        drawCircle(AshColors.ember, 3.dp.toPx(), tip)
+        Box(Modifier.size(6.dp).clip(CircleShape).background(AshColors.warn))
+        AshText("Сервер скрывает ${Format.events(count)}", Ash.type.body, color = AshColors.text2)
     }
 }
 

@@ -1,7 +1,11 @@
 package xyz.thewhish.rustopsy
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -12,8 +16,11 @@ import androidx.compose.ui.window.rememberWindowState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import xyz.thewhish.rustopsy.account.Account
 import xyz.thewhish.rustopsy.account.ServerApi
@@ -31,10 +38,14 @@ import xyz.thewhish.rustopsy.platform.SingleInstanceLock
 import xyz.thewhish.rustopsy.platform.appLogger
 import xyz.thewhish.rustopsy.platform.installFileLogging
 import xyz.thewhish.rustopsy.session.CombatSession
+import xyz.thewhish.rustopsy.session.TeamFights
+import xyz.thewhish.rustopsy.session.teamFights
 import xyz.thewhish.rustopsy.team.TeamSync
 import xyz.thewhish.rustopsy.ui.settings.BindsAccess
 import xyz.thewhish.rustopsy.ui.settings.SettingsContext
 import java.awt.Desktop
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 import java.net.http.HttpClient
 import java.time.Duration
 import java.time.Instant
@@ -82,13 +93,16 @@ fun main() {
         val settingsContext = SettingsContext(
             gameLog = gameLog?.toString(),
             dataDir = dirs.root.toString(),
-            version = System.getProperty("jpackage.app-version") ?: "dev",
+            version = System.getProperty("rustopsy.version") ?: "dev",
             binds = binds,
             account = account.access(),
         )
         val teamAccess = team.access()
+        val fights = teamFights(session.state, teamAccess).flowOn(Dispatchers.Default).stateIn(appScope, SharingStarted.Eagerly, TeamFights())
+        val overlaySample = System.getProperty("rustopsy.overlay") == "sample"
 
         application {
+            var mainActive by remember { mutableStateOf(true) }
             LaunchedEffect(Unit) { account.restore() }
             LaunchedEffect(Unit) { team.run() }
             LaunchedEffect(Unit) {
@@ -110,7 +124,24 @@ fun main() {
                 ),
             ) {
                 LaunchedEffect(Unit) { WindowChrome.install(window) }
-                App(session.state, ZoneId.systemDefault().rules.getOffset(Instant.now()).totalSeconds, settingsContext, teamAccess, avatars::load)
+                DisposableEffect(window) {
+                    val listener = object : WindowAdapter() {
+                        override fun windowActivated(event: WindowEvent) {
+                            mainActive = true
+                        }
+
+                        override fun windowDeactivated(event: WindowEvent) {
+                            mainActive = false
+                        }
+                    }
+                    mainActive = window.isActive
+                    window.addWindowListener(listener)
+                    onDispose { window.removeWindowListener(listener) }
+                }
+                App(session.state, fights, ZoneId.systemDefault().rules.getOffset(Instant.now()).totalSeconds, settingsContext, teamAccess, avatars::load)
+            }
+            if (settings.overlay.enabled || overlaySample) {
+                OverlayWindow(fights, settings.overlay, overlaySample, suppressed = mainActive)
             }
         }
     }

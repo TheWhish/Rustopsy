@@ -26,6 +26,7 @@ class AshType(family: FontFamily) {
     val numXL = style(family, 34, 36, 600, -0.02f)
     val numL = style(family, 26, 30, 600, -0.01f)
     val numM = style(family, 17, 22, 600)
+    val numOverlay = style(family, 22, 26, 600, -0.01f)
     val title = style(family, 24, 30, 600, -0.01f)
     val section = style(family, 15, 20, 600)
     val body = style(family, 14, 20, 400)
