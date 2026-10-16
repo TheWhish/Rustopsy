@@ -35,6 +35,12 @@ jobs:
       - name: Tests
         run: ./gradlew :core:jvmTest :shared:jvmTest :server:test -q
 
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: test-reports
+          path: "*/build/reports/tests/"
+
       - name: Server jar
         run: ./gradlew :server:buildFatJar -q
 

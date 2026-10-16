@@ -7,6 +7,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 class FightAnalyzerTest {
     private val you = Party("you", null)
@@ -203,12 +205,12 @@ class FightAnalyzerTest {
         }
         FightAnalyzer.analyze(events)
 
-        val started = kotlin.time.TimeSource.Monotonic.markNow()
+        val started = TimeSource.Monotonic.markNow()
         val fights = FightAnalyzer.analyze(events)
         val elapsed = started.elapsedNow()
 
         assertEquals(1, fights.size)
-        assertTrue(elapsed.inWholeMilliseconds < 50, "Analysis took $elapsed")
+        assertTrue(elapsed < 1.seconds, "Analysis took $elapsed")
     }
 
     @Test

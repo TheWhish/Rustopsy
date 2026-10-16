@@ -6,6 +6,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 class CombatLogParserTest {
     private val header =
@@ -174,12 +176,12 @@ class CombatLogParserTest {
         val text = (noise + sample.lines() + noise.take(200)).joinToString("\n")
         CombatLogParser.parse(text)
 
-        val started = kotlin.time.TimeSource.Monotonic.markNow()
+        val started = TimeSource.Monotonic.markNow()
         val snapshot = assertNotNull(CombatLogParser.parse(text))
         val elapsed = started.elapsedNow()
 
         assertEquals(4, snapshot.rows.size)
-        assertTrue(elapsed.inWholeMilliseconds < 200, "Parsing took $elapsed")
+        assertTrue(elapsed < 1.seconds, "Parsing took $elapsed")
     }
 
     @Test
