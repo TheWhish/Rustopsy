@@ -171,10 +171,10 @@ class TeamSyncTest {
         ready()
         val offset = sync.access().clockOffsetMs.filterNotNull().first()
         val nowSec = System.currentTimeMillis() / 1_000.0
-        sync.share(listOf(ownHit(nowSec, 76561198000000007), ownHit(nowSec, 15374)))
-        while (received.isEmpty()) delay(20.milliseconds)
-        assertEquals(listOf(76561198000000007), received.map { it.targetId })
-        assertEquals(Math.round(nowSec * 1_000) + offset, received.single().timeMs)
+        sync.share(listOf(ownHit(nowSec, 252623), ownHit(nowSec, 1491583)))
+        while (received.size < 2) delay(20.milliseconds)
+        assertEquals(listOf(252623L, 1491583L), received.map { it.targetId })
+        assertEquals(listOf(Math.round(nowSec * 1_000) + offset), received.map { it.timeMs }.distinct())
     }
 
     private fun ownHit(timeSec: Double, target: Long) = CombatEvent(

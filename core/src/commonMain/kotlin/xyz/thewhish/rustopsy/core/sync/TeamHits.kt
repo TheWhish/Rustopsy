@@ -11,12 +11,13 @@ private const val PLAYER = "player"
 
 fun CombatEvent.toTeamHit(clockOffsetMs: Long): TeamHit? {
     val target = row.target ?: return null
-    val shareable = teammate == null && row.attacker?.isYou == true && target.name == PLAYER && target.id in STEAM_ID_RANGE &&
+    val targetId = target.id ?: return null
+    val shareable = teammate == null && row.attacker?.isYou == true && target.name == PLAYER && targetId > 0 &&
         !row.isRejected && row.oldHp != null && row.newHp != null
     if (!shareable) return null
     return TeamHit(
         timeMs = (timeSec * 1_000).roundToLong() + clockOffsetMs,
-        targetId = target.id!!,
+        targetId = targetId,
         weapon = row.weapon,
         ammo = row.ammo,
         area = row.area?.name?.lowercase().orEmpty(),

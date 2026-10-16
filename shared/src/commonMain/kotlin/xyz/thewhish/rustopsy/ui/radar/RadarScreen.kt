@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +44,7 @@ import xyz.thewhish.rustopsy.core.session.HiddenWindow
 import xyz.thewhish.rustopsy.session.SessionState
 import xyz.thewhish.rustopsy.session.TeamFights
 import xyz.thewhish.rustopsy.team.TeamAccess
+import xyz.thewhish.rustopsy.ui.overlay.OverlayAccess
 import xyz.thewhish.rustopsy.ui.Format
 import xyz.thewhish.rustopsy.ui.components.Panel
 import xyz.thewhish.rustopsy.ui.components.PanelHeader
@@ -58,22 +60,42 @@ private const val MAX_FIGHT_TABS = 4
 private val TOP_BAR_HEIGHT = 56.dp
 
 @Composable
-fun RadarScreen(session: SessionState, teamFights: TeamFights, logFound: Boolean, nowSec: Double, utcOffsetSec: Int, team: TeamAccess, account: AccountAccess) {
+fun RadarScreen(
+    session: SessionState,
+    teamFights: TeamFights,
+    logFound: Boolean,
+    nowSec: Double,
+    utcOffsetSec: Int,
+    team: TeamAccess,
+    account: AccountAccess,
+    overlay: OverlayAccess,
+) {
     val teamStatus by team.status.collectAsState()
+    val overlaySettings by overlay.settings.collectAsState()
     val (fights, names) = teamFights
-    var teamOpen by remember { mutableStateOf(false) }
+    var open by remember { mutableStateOf<TopPanel?>(null) }
+    fun toggle(panel: TopPanel) {
+        open = if (open == panel) null else panel
+    }
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(AshSpace.m)) {
-            TopBar(logFound, session.hidden) { TeamButton(teamStatus, teamOpen) { teamOpen = !teamOpen } }
+            TopBar(logFound, session.hidden) {
+                OverlayButton(overlaySettings.enabled, open == TopPanel.Overlay) { toggle(TopPanel.Overlay) }
+                TeamButton(teamStatus, open == TopPanel.Team) { toggle(TopPanel.Team) }
+            }
             if (fights.isEmpty()) {
                 EmptyFightView()
             } else {
                 FightView(fights, session, nowSec, utcOffsetSec, names)
             }
         }
-        TeamOverlay(teamOpen, { teamOpen = false }, team, account, top = TOP_BAR_HEIGHT + AshSpace.s)
+        val top = TOP_BAR_HEIGHT + AshSpace.s
+        TeamOverlay(open == TopPanel.Team, { open = null }, team, account, top)
+        OverlayPanel(open == TopPanel.Overlay, { open = null }, overlay, top)
     }
 }
+
+private enum class TopPanel { Team, Overlay }
 
 @Composable
 private fun FightView(fights: List<Fight>, session: SessionState, nowSec: Double, utcOffsetSec: Int, names: Map<Long, String>) {
@@ -128,7 +150,7 @@ private fun FightBody(fight: Fight, current: Boolean, session: SessionState, now
 }
 
 @Composable
-private fun TopBar(logFound: Boolean, hidden: HiddenWindow?, trailing: @Composable () -> Unit) {
+private fun TopBar(logFound: Boolean, hidden: HiddenWindow?, trailing: @Composable RowScope.() -> Unit) {
     Box(Modifier.fillMaxWidth().height(TOP_BAR_HEIGHT).clip(AshShapes.panel).background(AshColors.ash1)) {
         Row(
             Modifier.fillMaxSize().padding(start = AshSpace.xl, end = 10.dp),
@@ -148,7 +170,7 @@ private fun TopBar(logFound: Boolean, hidden: HiddenWindow?, trailing: @Composab
             ) {
                 if (hidden != null) HiddenChip(hidden.count)
             }
-            trailing()
+            Row(horizontalArrangement = Arrangement.spacedBy(AshSpace.s), verticalAlignment = Alignment.CenterVertically, content = trailing)
         }
     }
 }

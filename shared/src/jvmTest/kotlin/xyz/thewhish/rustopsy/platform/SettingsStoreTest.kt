@@ -1,5 +1,7 @@
 package xyz.thewhish.rustopsy.platform
 
+import xyz.thewhish.rustopsy.ui.overlay.OverlayCorner
+import xyz.thewhish.rustopsy.ui.overlay.OverlaySettings
 import java.nio.file.Files
 import kotlin.io.path.listDirectoryEntries
 import kotlin.test.Test
@@ -18,9 +20,21 @@ class SettingsStoreTest {
 
     @Test
     fun saveThenLoadRoundTrips() {
-        store.save(Settings(debugLogging = true))
-        assertEquals(Settings(debugLogging = true), store.load())
+        val settings = Settings(debugLogging = true, overlay = OverlaySettings(enabled = true, consented = true, corner = OverlayCorner.BOTTOM_LEFT, offsetX = 40))
+        store.save(settings)
+        assertEquals(settings, store.load())
         assertEquals(listOf(file), dir.listDirectoryEntries())
+    }
+
+    @Test
+    fun handEditedOverlayValuesAreClamped() {
+        Files.writeString(file, """{"overlay": {"offsetX": 9999, "offsetY": -5, "scalePercent": 300, "backgroundPercent": 140, "rowsPercent": 10}}""")
+        val overlay = store.load().overlay
+        assertEquals(400, overlay.x)
+        assertEquals(0, overlay.y)
+        assertEquals(1.3f, overlay.scale)
+        assertEquals(100, overlay.background)
+        assertEquals(30, overlay.rows)
     }
 
     @Test

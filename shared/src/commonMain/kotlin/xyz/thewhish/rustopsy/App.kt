@@ -64,6 +64,7 @@ import xyz.thewhish.rustopsy.ui.theme.AshSpace
 import xyz.thewhish.rustopsy.ui.theme.AshText
 import xyz.thewhish.rustopsy.ui.theme.AshTheme
 import xyz.thewhish.rustopsy.team.TeamAccess
+import xyz.thewhish.rustopsy.ui.overlay.OverlayAccess
 import xyz.thewhish.rustopsy.ui.components.LocalAvatars
 import kotlin.math.min
 import kotlin.time.Clock
@@ -83,6 +84,7 @@ fun App(
     utcOffsetSec: Int,
     settings: SettingsContext,
     team: TeamAccess,
+    overlay: OverlayAccess,
     avatars: suspend (String) -> ImageBitmap?,
 ) {
     AshTheme {
@@ -103,7 +105,7 @@ fun App(
                     },
                 ) { target ->
                     when (target) {
-                        Screen.Radar -> RadarScreen(state, teamFights, settings.gameLog != null, nowSec, utcOffsetSec, team, settings.account)
+                        Screen.Radar -> RadarScreen(state, teamFights, settings.gameLog != null, nowSec, utcOffsetSec, team, settings.account, overlay)
                         Screen.Settings -> SettingsScreen(settings)
                         else -> ComingLater(target)
                     }

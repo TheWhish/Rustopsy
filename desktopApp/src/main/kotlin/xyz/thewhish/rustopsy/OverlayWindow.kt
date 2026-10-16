@@ -17,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.awt.SwingWindow
@@ -27,15 +26,17 @@ import androidx.compose.ui.unit.dp
 import com.sun.jna.Native
 import com.sun.jna.Pointer
 import kotlinx.coroutines.flow.StateFlow
-import xyz.thewhish.rustopsy.platform.OverlayCorner
-import xyz.thewhish.rustopsy.platform.OverlaySettings
 import xyz.thewhish.rustopsy.platform.appLogger
 import xyz.thewhish.rustopsy.session.TeamFights
 import xyz.thewhish.rustopsy.ui.overlay.OVERLAY_CARD_MAX_HEIGHT
 import xyz.thewhish.rustopsy.ui.overlay.OVERLAY_CARD_WIDTH
 import xyz.thewhish.rustopsy.ui.overlay.OverlayCard
+import xyz.thewhish.rustopsy.ui.overlay.OverlayCorner
 import xyz.thewhish.rustopsy.ui.overlay.OverlayModel
+import xyz.thewhish.rustopsy.ui.overlay.OverlaySettings
+import xyz.thewhish.rustopsy.ui.overlay.alignment
 import xyz.thewhish.rustopsy.ui.overlay.overlayModel
+import xyz.thewhish.rustopsy.ui.overlay.right
 import xyz.thewhish.rustopsy.ui.overlay.sampleOverlay
 import xyz.thewhish.rustopsy.ui.theme.AshMotion
 import xyz.thewhish.rustopsy.ui.theme.AshTheme
@@ -49,13 +50,14 @@ private val SLIDE = 4.dp
 private const val EXIT_MS = 170
 
 @Composable
-fun OverlayWindow(fights: StateFlow<TeamFights>, settings: OverlaySettings, sample: Boolean, suppressed: Boolean) {
+fun OverlayWindow(fights: StateFlow<TeamFights>, settings: OverlaySettings, previewing: Boolean, suppressed: Boolean) {
     val teamFights by fights.collectAsState()
     val nowSec = rememberNowSec()
     var broken by remember { mutableStateOf(false) }
     val model = when {
-        suppressed || broken -> null
-        sample -> sampleOverlay()
+        broken || !settings.enabled -> null
+        previewing -> sampleOverlay(nowSec)
+        suppressed -> null
         else -> overlayModel(teamFights.fights, nowSec)
     }
     val visibility = remember { MutableTransitionState(false) }
@@ -72,7 +74,7 @@ fun OverlayWindow(fights: StateFlow<TeamFights>, settings: OverlaySettings, samp
         val density = LocalDensity.current
         CompositionLocalProvider(LocalDensity provides Density(density.density * settings.scale, density.fontScale)) {
             val slidePx = with(LocalDensity.current) { SLIDE.roundToPx() }
-            val fromRight = settings.corner == OverlayCorner.TOP_RIGHT || settings.corner == OverlayCorner.BOTTOM_RIGHT
+            val fromRight = settings.corner.right
             AshTheme {
                 Box(Modifier.fillMaxSize().padding(SLIDE), contentAlignment = settings.corner.alignment) {
                     AnimatedVisibility(
@@ -81,7 +83,7 @@ fun OverlayWindow(fights: StateFlow<TeamFights>, settings: OverlaySettings, samp
                             slideInHorizontally(tween(AshMotion.MEDIUM, easing = AshMotion.enter)) { if (fromRight) slidePx else -slidePx },
                         exit = fadeOut(tween(EXIT_MS, easing = AshMotion.exit)),
                     ) {
-                        retained.model?.let { OverlayCard(it, settings.opacity) }
+                        retained.model?.let { OverlayCard(it, nowSec, settings.background / 100f, settings.rows / 100f) }
                     }
                 }
             }
@@ -109,23 +111,12 @@ private class Retained {
     var model: OverlayModel? = null
 }
 
-private val OverlayCorner.alignment: Alignment
-    get() = when (this) {
-        OverlayCorner.TOP_LEFT -> Alignment.TopStart
-        OverlayCorner.TOP_RIGHT -> Alignment.TopEnd
-        OverlayCorner.BOTTOM_LEFT -> Alignment.BottomStart
-        OverlayCorner.BOTTOM_RIGHT -> Alignment.BottomEnd
-    }
-
 private fun place(window: ComposeWindow, settings: OverlaySettings) {
     val screen = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.defaultConfiguration.bounds
     val slide = (SLIDE.value * settings.scale).roundToInt()
     val width = ((OVERLAY_CARD_WIDTH + SLIDE * 2).value * settings.scale).roundToInt()
     val height = ((OVERLAY_CARD_MAX_HEIGHT + SLIDE * 2).value * settings.scale).roundToInt()
-    val x = when (settings.corner) {
-        OverlayCorner.TOP_LEFT, OverlayCorner.BOTTOM_LEFT -> screen.x + settings.x - slide
-        OverlayCorner.TOP_RIGHT, OverlayCorner.BOTTOM_RIGHT -> screen.x + screen.width - settings.x - width + slide
-    }
+    val x = if (settings.corner.right) screen.x + screen.width - settings.x - width + slide else screen.x + settings.x - slide
     val y = when (settings.corner) {
         OverlayCorner.TOP_LEFT, OverlayCorner.TOP_RIGHT -> screen.y + settings.y - slide
         OverlayCorner.BOTTOM_LEFT, OverlayCorner.BOTTOM_RIGHT -> screen.y + screen.height - settings.y - height + slide

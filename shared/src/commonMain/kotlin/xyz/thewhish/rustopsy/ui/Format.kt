@@ -6,6 +6,7 @@ import kotlin.math.roundToLong
 
 private val NBSP = Char(0x00A0)
 private const val MINUS = '−'
+private const val BYTES_IN_MB = 1024 * 1024
 
 object Format {
     fun oneDecimal(value: Double): String {
@@ -37,6 +38,8 @@ object Format {
     fun duration(seconds: Double): String = if (seconds < 60) seconds(seconds.roundToLong()) else "${(seconds / 60).toLong()}${NBSP}мин ${(seconds % 60).toLong()}${NBSP}с"
 
     fun percent(part: Int, total: Int): String = "${part * 100 / total}${NBSP}%"
+
+    fun downloaded(received: Long, total: Long): String = "${received / BYTES_IN_MB} из ${total / BYTES_IN_MB}${NBSP}МБ"
 
     fun times(count: Int): String = "$count ${plural(count, "раз", "раза", "раз")}"
 

@@ -246,7 +246,7 @@ class TeamTest {
         val leader = player()
         val friend = player()
         val stranger = player()
-        val hit = TeamHit(System.currentTimeMillis(), 76561198999999999, "rifle.ak", "riflebullet", "head", 41.5, 100.0, 49.0, "")
+        val hit = TeamHit(System.currentTimeMillis(), 252623, "rifle.ak", "riflebullet", "head", null, 100.0, 49.0, "")
 
         live(friend) {
             assertNull(state(next()).team)
@@ -258,7 +258,7 @@ class TeamTest {
                 state(next())
                 live(leader) {
                     assertEquals(listOf(true, true), state(next()).team?.members?.map { it.online })
-                    send(LiveMessage.Hits(listOf(hit, hit.copy(targetId = 5)), from = stranger.steamId))
+                    send(LiveMessage.Hits(listOf(hit, hit.copy(targetId = 0)), from = stranger.steamId))
                     send(LiveMessage.Ping(42))
                     assertEquals(42, assertIs<LiveMessage.Pong>(next()).clientTimeMs)
                 }

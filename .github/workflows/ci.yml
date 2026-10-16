@@ -43,6 +43,16 @@ jobs:
           name: rustopsy-server
           path: server/build/libs/rustopsy-server.jar
 
+      - name: Tag matches version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          version=$(sed -n 's/^rustopsy.version=//p' gradle.properties | tr -d '\r')
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match rustopsy.version=$version"
+            exit 1
+          fi
+
       - name: Package MSI
         if: startsWith(github.ref, 'refs/tags/v')
         run: ./gradlew :desktopApp:packageMsi -q
@@ -78,3 +88,39 @@ jobs:
           ssh-keygen -lf ~/.ssh/id_ed25519
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           ssh -o BatchMode=yes deploy@thewhish.xyz < rustopsy-server.jar
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: Rustopsy-msi
+          path: dist
+
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SIGNING_KEY: ${{ secrets.UPDATE_SIGNING_KEY }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [ -z "$SIGNING_KEY" ]; then
+            echo "UPDATE_SIGNING_KEY is not set"
+            exit 1
+          fi
+          msi=$(ls dist/*.msi)
+          version=${TAG#v}
+          size=$(stat -c %s "$msi")
+          sha256=$(sha256sum "$msi" | cut -d' ' -f1)
+          url="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$(basename "$msi")"
+          umask 077
+          trap 'rm -f key.pem' EXIT
+          printf '%s\n' "$SIGNING_KEY" > key.pem
+          printf 'rustopsy-update:1:%s:%s:%s' "$version" "$size" "$sha256" > message.txt
+          signature=$(openssl pkeyutl -sign -inkey key.pem -rawin -in message.txt | base64 -w0)
+          jq -n --arg version "$version" --arg msi "$url" --argjson size "$size" --arg sha256 "$sha256" --arg signature "$signature" \
+            '{schema: 1, version: $version, msi: $msi, size: $size, sha256: $sha256, signature: $signature}' > latest.json
+          gh release create "$TAG" "$msi" latest.json --repo "$GITHUB_REPOSITORY" --draft --title "Rustopsy $version" --notes ""

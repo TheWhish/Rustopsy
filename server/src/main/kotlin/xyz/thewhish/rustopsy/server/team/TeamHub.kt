@@ -4,7 +4,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import xyz.thewhish.rustopsy.core.sync.LiveMessage
-import xyz.thewhish.rustopsy.core.sync.STEAM_ID_RANGE
 import xyz.thewhish.rustopsy.core.sync.TeamHit
 import xyz.thewhish.rustopsy.core.sync.TeamInfo
 import xyz.thewhish.rustopsy.core.sync.TeamInvite
@@ -122,7 +121,7 @@ class TeamHub(private val store: TeamStore, private val clock: () -> Long = Syst
     }
 
     private fun TeamHit.isPlausible(now: Long): Boolean =
-        targetId in STEAM_ID_RANGE &&
+        targetId > 0 &&
             abs(timeMs - now) <= MAX_CLOCK_SKEW_MS &&
             weapon.length <= MAX_TEXT && ammo.length <= MAX_TEXT && info.length <= MAX_TEXT && area.length <= MAX_AREA &&
             listOfNotNull(oldHp, newHp).all { it in 0.0..MAX_HP } &&

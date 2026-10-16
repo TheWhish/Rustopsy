@@ -1,12 +1,7 @@
 package xyz.thewhish.rustopsy.ui.radar
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,20 +16,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -70,6 +61,7 @@ import xyz.thewhish.rustopsy.team.TeamStatus
 import xyz.thewhish.rustopsy.ui.Format
 import xyz.thewhish.rustopsy.ui.components.ActionRunner
 import xyz.thewhish.rustopsy.ui.components.Avatar
+import xyz.thewhish.rustopsy.ui.components.Popover
 import xyz.thewhish.rustopsy.ui.components.rememberActionRunner
 import xyz.thewhish.rustopsy.ui.theme.Ash
 import xyz.thewhish.rustopsy.ui.theme.AshColors
@@ -80,7 +72,6 @@ import xyz.thewhish.rustopsy.ui.theme.AshText
 import kotlin.math.abs
 
 private val PANEL_WIDTH = 400.dp
-private val PANEL_MAX_HEIGHT = 700.dp
 private val BAR_AVATAR = 24.dp
 private const val BAR_AVATARS = 4
 private const val CLOCK_WARNING_MS = 2_000L
@@ -134,26 +125,7 @@ private fun AvatarStack(members: List<TeamMember>) {
 
 @Composable
 fun BoxScope.TeamOverlay(open: Boolean, onClose: () -> Unit, team: TeamAccess, account: AccountAccess, top: Dp) {
-    if (open) {
-        Box(Modifier.fillMaxSize().clickable(remember { MutableInteractionSource() }, indication = null, onClick = onClose))
-    }
-    AnimatedVisibility(
-        visible = open,
-        modifier = Modifier.align(Alignment.TopEnd).padding(top = top),
-        enter = fadeIn(tween(AshMotion.SHORT)) + slideInVertically(tween(AshMotion.MEDIUM, easing = AshMotion.standard)) { -it / 24 },
-        exit = fadeOut(tween(AshMotion.SHORT)) + slideOutVertically(tween(AshMotion.SHORT, easing = AshMotion.exit)) { -it / 24 },
-    ) {
-        Column(
-            Modifier.width(PANEL_WIDTH).heightIn(max = PANEL_MAX_HEIGHT).clip(AshShapes.panel).background(AshColors.ash1)
-                .border(1.dp, AshColors.ash3, AshShapes.panel)
-                .clickable(remember { MutableInteractionSource() }, indication = null) {}
-                .verticalScroll(rememberScrollState())
-                .padding(AshSpace.xl),
-            verticalArrangement = Arrangement.spacedBy(AshSpace.l),
-        ) {
-            TeamPanelContent(team, account)
-        }
-    }
+    Popover(open, onClose, top, PANEL_WIDTH) { TeamPanelContent(team, account) }
 }
 
 @Composable
@@ -434,7 +406,7 @@ private fun Hint(text: String) {
 }
 
 @Composable
-private fun SmallButton(text: String, primary: Boolean = false, enabled: Boolean = true, onClick: () -> Unit) {
+internal fun SmallButton(text: String, primary: Boolean = false, enabled: Boolean = true, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     val background by animateColorAsState(

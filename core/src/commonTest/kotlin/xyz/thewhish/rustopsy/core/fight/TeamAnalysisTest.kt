@@ -94,7 +94,7 @@ class TeamAnalysisTest {
         assertEquals(mate, received.teammate)
         assertEquals(hit.row.copy(attacker = Party("player", mate), distanceM = null, hits = null, integrity = null, travelSec = null, mismatchM = null, desync = null), received.row)
         assertNull(mine(0.0, 0.0, 100.0, info = "projectile_los").toTeamHit(0))
-        assertNull(mine(0.0, 100.0, 70.0, target = 15374L).toTeamHit(0))
+        assertEquals(252623L, mine(0.0, 100.0, 70.0, target = 252623L).toTeamHit(0)?.targetId)
         assertNull(incoming(0.0, 100.0, 70.0, from = enemy).toTeamHit(0))
         assertNull(received.toTeamHit(0))
     }

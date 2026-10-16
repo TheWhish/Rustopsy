@@ -117,9 +117,19 @@ fun Marker(shape: MarkerShape, color: Color, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SegmentedControl(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun SegmentedControl(
+    options: List<String>,
+    selected: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    raised: Boolean = false,
+    fill: Boolean = false,
+) {
+    val container = if (raised) AshColors.ash2 else AshColors.ash1
+    val hover = if (raised) AshColors.ash3 else AshColors.ash2
+    val active = if (raised) AshColors.ash4 else AshColors.ash3
     Row(
-        modifier.clip(AshShapes.control).background(AshColors.ash1).padding(3.dp),
+        modifier.clip(AshShapes.control).background(container).padding(3.dp),
         horizontalArrangement = Arrangement.spacedBy(AshSpace.hair),
     ) {
         options.forEachIndexed { index, option ->
@@ -127,14 +137,14 @@ fun SegmentedControl(options: List<String>, selected: Int, onSelect: (Int) -> Un
             val hovered by interaction.collectIsHoveredAsState()
             val background by animateColorAsState(
                 when {
-                    index == selected -> AshColors.ash3
-                    hovered -> AshColors.ash2
-                    else -> AshColors.ash1
+                    index == selected -> active
+                    hovered -> hover
+                    else -> container
                 },
                 tween(AshMotion.MICRO, easing = AshMotion.standard),
             )
             Box(
-                Modifier.height(30.dp)
+                (if (fill) Modifier.weight(1f) else Modifier).height(30.dp)
                     .clip(AshShapes.chip)
                     .background(background)
                     .hoverable(interaction)

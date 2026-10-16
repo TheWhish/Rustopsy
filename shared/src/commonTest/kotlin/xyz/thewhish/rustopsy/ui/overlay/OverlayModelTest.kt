@@ -55,9 +55,10 @@ class OverlayModelTest {
 
         val model = assertNotNull(overlayModel(listOf(fight), 2.0))
 
-        assertEquals(listOf(deadNumber), model.dead)
+        assertEquals(7, model.total)
+        assertEquals(1, model.killed)
+        assertEquals(fight.endSec, model.lastHitSec)
         assertEquals(OVERLAY_MAX_ROWS, model.enemies.size)
-        assertEquals(1, model.more)
         val numbers = model.enemies.map { it.number }
         assertEquals(numbers.sorted(), numbers)
         assertTrue(deadNumber !in numbers)
@@ -70,7 +71,7 @@ class OverlayModelTest {
         val model = assertNotNull(overlayModel(fights, 2.0))
 
         assertEquals(Condition.KNOCKED, model.enemies.single().condition)
-        assertTrue(model.dead.isEmpty())
+        assertEquals(0, model.killed)
     }
 
     @Test

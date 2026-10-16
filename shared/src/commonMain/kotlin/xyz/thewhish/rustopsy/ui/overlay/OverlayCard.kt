@@ -20,8 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import xyz.thewhish.rustopsy.core.fight.Condition
 import xyz.thewhish.rustopsy.ui.Format
@@ -34,78 +38,83 @@ import xyz.thewhish.rustopsy.ui.theme.AshColors
 import xyz.thewhish.rustopsy.ui.theme.AshMotion
 import xyz.thewhish.rustopsy.ui.theme.AshText
 
-private val CARD_PADDING = 6.dp
-private val ROW_GAP = 4.dp
+private val SPACING = 6.dp
 private val ROW_HEIGHT = 48.dp
 private val ROW_INSET = 12.dp
-private val FOOTER_HEIGHT = 24.dp
+private val FOOTER_HEIGHT = 28.dp
 private val HP_WIDTH = 96.dp
 private val TEAM_STRIPE = 2.dp
 private val ROW_SHAPE = RoundedCornerShape(6.dp)
-private val CARD_SHAPE = RoundedCornerShape(6.dp + CARD_PADDING)
+private val CARD_SHAPE = RoundedCornerShape(6.dp + SPACING)
+private const val BORDER_ALPHA = 0.06f
+private const val SHADOW_BELOW_ROWS = 0.75f
+private const val BRIGHT_FOOTER_BELOW = 0.5f
+private val CENTERED = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both)
+private val TEXT_SHADOW = Shadow(Color.Black.copy(alpha = 0.6f), Offset(0f, 1f), blurRadius = 3f)
 
 val OVERLAY_CARD_WIDTH = 280.dp
-val OVERLAY_CARD_MAX_HEIGHT = CARD_PADDING * 2 + (ROW_HEIGHT + ROW_GAP) * OVERLAY_MAX_ROWS + FOOTER_HEIGHT
+val OVERLAY_CARD_MAX_HEIGHT = SPACING * 2 + (ROW_HEIGHT + SPACING) * OVERLAY_MAX_ROWS + FOOTER_HEIGHT
 
 @Composable
-fun OverlayCard(model: OverlayModel, opacity: Float, modifier: Modifier = Modifier) {
-    val rowColor = AshColors.ash1.copy(alpha = opacity)
+fun OverlayCard(model: OverlayModel, nowSec: Double, backgroundOpacity: Float, rowsOpacity: Float, modifier: Modifier = Modifier) {
+    val shadow = TEXT_SHADOW.takeIf { rowsOpacity < SHADOW_BELOW_ROWS }
+    val rowColor = AshColors.ash1.copy(alpha = rowsOpacity)
     Column(
         modifier.width(OVERLAY_CARD_WIDTH)
             .clip(CARD_SHAPE)
-            .background(AshColors.ash0.copy(alpha = opacity))
-            .border(1.dp, AshColors.text1.copy(alpha = 0.06f), CARD_SHAPE)
-            .padding(CARD_PADDING)
+            .background(AshColors.ash0.copy(alpha = backgroundOpacity))
+            .border(1.dp, AshColors.text1.copy(alpha = BORDER_ALPHA * backgroundOpacity), CARD_SHAPE)
+            .padding(SPACING)
             .animateContentSize(tween(AshMotion.MEDIUM, easing = AshMotion.standard)),
-        verticalArrangement = Arrangement.spacedBy(ROW_GAP),
+        verticalArrangement = Arrangement.spacedBy(SPACING),
     ) {
         model.enemies.forEach { enemy ->
-            key(enemy.number) { EnemyRow(enemy, rowColor) }
+            key(enemy.number) { EnemyRow(enemy, rowColor, shadow) }
         }
-        if (model.more > 0 || model.dead.isNotEmpty()) Footer(model)
+        Footer(model, nowSec, shadow, if (backgroundOpacity < BRIGHT_FOOTER_BELOW) AshColors.text2 else AshColors.text3)
     }
 }
 
 @Composable
-private fun EnemyRow(enemy: EnemySummary, base: Color) {
+private fun EnemyRow(enemy: EnemySummary, base: Color, shadow: Shadow?) {
     val background = rememberCooling(Triple(enemy.hp, enemy.condition, enemy.distanceM), enabled = true, base)
-    Box(
+    Row(
         Modifier.fillMaxWidth().height(ROW_HEIGHT)
             .clip(ROW_SHAPE)
             .background(background)
             .drawBehind { if (!enemy.seenByYou) drawRect(AshColors.team, size = Size(TEAM_STRIPE.toPx(), size.height)) }
             .padding(horizontal = ROW_INSET),
-        contentAlignment = Alignment.CenterStart,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(Modifier.fillMaxWidth()) {
-            Box(Modifier.width(HP_WIDTH).alignByBaseline()) { Hp(enemy) }
-            AshText("Противник ${enemy.number}", Ash.type.bodyStrong, Modifier.weight(1f).alignByBaseline())
-            enemy.distanceM?.let { AshText(Format.meters(it), Ash.type.secondary, Modifier.alignByBaseline(), AshColors.text2) }
-        }
+        Box(Modifier.width(HP_WIDTH)) { Hp(enemy, shadow) }
+        AshText("Противник ${enemy.number}", Ash.type.bodyStrong.overlay(shadow), Modifier.weight(1f))
+        enemy.distanceM?.let { AshText(Format.meters(it), Ash.type.secondary.overlay(shadow), Modifier.padding(start = ROW_INSET), AshColors.text2) }
     }
 }
 
 @Composable
-private fun Hp(enemy: EnemySummary) {
+private fun Hp(enemy: EnemySummary, shadow: Shadow?) {
     val color = hpColor(enemy)
+    val style = Ash.type.numOverlay.overlay(shadow)
     val hp = enemy.hp
     when {
-        enemy.condition == Condition.KNOCKED -> AshText("Нокнут", Ash.type.section, color = color)
-        hp == null -> AshText("−", Ash.type.numOverlay, color = color)
+        enemy.condition == Condition.KNOCKED -> AshText("Нокнут", style, color = color)
+        hp == null -> AshText("−", style, color = color)
         else -> Row {
-            AnimatedHp(hp, Ash.type.numOverlay, color, Modifier.alignByBaseline())
-            AshText("HP", Ash.type.caption, Modifier.alignByBaseline().padding(start = 4.dp), AshColors.text3)
+            AnimatedHp(hp, style, color, Modifier.alignByBaseline())
+            AshText("HP", Ash.type.caption.overlay(shadow), Modifier.alignByBaseline().padding(start = 4.dp), AshColors.text3)
         }
     }
 }
 
 @Composable
-private fun Footer(model: OverlayModel) {
+private fun Footer(model: OverlayModel, nowSec: Double, shadow: Shadow?, color: Color) {
+    val style = Ash.type.label.overlay(shadow)
     Row(Modifier.fillMaxWidth().height(FOOTER_HEIGHT).padding(horizontal = ROW_INSET), verticalAlignment = Alignment.CenterVertically) {
-        if (model.more > 0) AshText("ещё ${model.more}", Ash.type.label, color = AshColors.text3)
+        AshText("Последний хит: ${Format.ago(nowSec - model.lastHitSec)}", style, color = color)
         Spacer(Modifier.weight(1f))
-        if (model.dead.isNotEmpty()) {
-            AshText("${if (model.dead.size == 1) "Убит" else "Убиты"}: ${model.dead.joinToString(", ")}", Ash.type.label, color = AshColors.text3)
-        }
+        AshText("Убито ${model.killed} из ${model.total}", style, color = color)
     }
 }
+
+private fun TextStyle.overlay(shadow: Shadow?): TextStyle = copy(lineHeightStyle = CENTERED, shadow = shadow)

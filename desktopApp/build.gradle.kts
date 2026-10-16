@@ -16,15 +16,19 @@ dependencies {
     implementation(libs.compose.uiToolingPreview)
 }
 
+val appVersion = providers.gradleProperty("rustopsy.version").get()
+val msiVersion = appVersion.substringBefore('-')
+require(msiVersion.matches(Regex("""\d+\.\d+\.\d+"""))) { "rustopsy.version must start with X.Y.Z, got $appVersion" }
+
 compose.desktop {
     application {
         mainClass = "xyz.thewhish.rustopsy.MainKt"
-        jvmArgs += listOf("-Xmx256m", "-Drustopsy.version=0.1.0-alpha")
+        jvmArgs += listOf("-Xmx256m", "-Drustopsy.version=$appVersion")
 
         nativeDistributions {
             targetFormats(TargetFormat.Msi)
             packageName = "Rustopsy"
-            packageVersion = "0.1.0"
+            packageVersion = msiVersion
             modules("java.instrument", "jdk.unsupported", "java.net.http", "jdk.httpserver")
 
             windows {
